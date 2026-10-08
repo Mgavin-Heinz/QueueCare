@@ -50,8 +50,43 @@ namespace QueueCare.Data
                 .Property(q => q.Status)
                 .HasConversion<string>()
                 .HasMaxLength(20);
+
+            builder.Entity<ClinicDay>()
+                 .HasOne(c => c.Service)
+                 .WithMany()
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Appointment>()
+                .HasOne(a => a.Patient)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Appointment>()
+                .HasOne(a => a.ClinicDay)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<QueueEntry>()
+                .HasOne(q => q.Patient)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<QueueEntry>()
+                .HasOne(q => q.ClinicDay)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.Patient)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AuditLog>()
+                .HasOne(l => l.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
-    
+
 }

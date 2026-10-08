@@ -541,13 +541,13 @@ namespace QueueCare.Data.Migrations
                     b.HasOne("QueueCare.Models.ClinicDay", "ClinicDay")
                         .WithMany()
                         .HasForeignKey("ClinicDayId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QueueCare.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ClinicDay");
@@ -560,7 +560,7 @@ namespace QueueCare.Data.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -571,7 +571,7 @@ namespace QueueCare.Data.Migrations
                     b.HasOne("QueueCare.Models.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Service");
@@ -582,7 +582,7 @@ namespace QueueCare.Data.Migrations
                     b.HasOne("QueueCare.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QueueCare.Models.QueueEntry", "QueueEntry")
@@ -612,13 +612,13 @@ namespace QueueCare.Data.Migrations
                     b.HasOne("QueueCare.Models.ClinicDay", "ClinicDay")
                         .WithMany()
                         .HasForeignKey("ClinicDayId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QueueCare.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Appointment");
