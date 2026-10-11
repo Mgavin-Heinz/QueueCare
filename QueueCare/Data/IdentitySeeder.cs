@@ -5,7 +5,7 @@ namespace QueueCare.Data
     public static class IdentitySeeder
     {
         // The four roles in QueueCare
-        public static readonly string[] Roles = { "Patientf", "Receptionist", "Nurse", "Admin" };
+        public static readonly string[] Roles = { "Patient", "Receptionist", "Nurse", "Admin" };
 
 
         // Test password for demo accounts only (never a real password)
@@ -19,9 +19,14 @@ namespace QueueCare.Data
             // 1. Create roles if they dont exist
             foreach (var role in Roles)
             {
-                if(!await roleManager.RoleExistsAsync(role))
+                if (!await roleManager.RoleExistsAsync(role))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    var result = await roleManager.CreateAsync(new IdentityRole(role));
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        throw new Exception($"Could not create role {role}: {errors}");
+                    }
                 }
             }
 
