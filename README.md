@@ -44,7 +44,14 @@ QueueCare lets patients book appointments and track their position in a live que
 The app uses SQL Server LocalDB, which comes with Visual Studio's "ASP.NET and web development" workload. No extra database setup is needed.
 
 ## Demo accounts
-To be added once seed data is in place (test data only, no real patient information).
+Created automatically when the app starts (test data only):
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@queuecare.local | Demo123! |
+| Receptionist | reception@queuecare.local | Demo123! |
+| Nurse | nurse@queuecare.local | Demo123! |
+| Patient | patient@queuecare.local | Demo123! |
 
 ## How we work
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branches, commit messages and pull requests.
