@@ -1,0 +1,61 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "/Views/Shared/_AuthLayout.cshtml";
+}
+
+<!-- Sliding toggle -->
+<nav class="qc-auth-slider is-login" aria-label="Account">
+    <span class="qc-slider-pill"></span>
+    <a asp-page="/Account/Register">Register</a>
+    <a asp-page="/Account/Login" class="active">Login</a>
+</nav>
+
+<section class="qc-auth-section">
+    <div class="qc-auth-card">
+
+        <!-- LEFT: form -->
+        <div class="qc-auth-left">
+            <h1 class="qc-auth-title">Welcome</h1>
+            <p class="qc-auth-subtitle">Back to QueueCare</p>
+
+            <form id="account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <label class="qc-auth-label">Email</label>
+                <input asp-for="Input.Email" class="qc-auth-input" autocomplete="username" aria-required="true" placeholder="you@example.com" />
+                <span asp-validation-for="Input.Email" class="qc-auth-validation"></span>
+
+                <label class="qc-auth-label">Password</label>
+                <input asp-for="Input.Password" class="qc-auth-input" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="qc-auth-validation"></span>
+
+                <div class="qc-auth-remember">
+                    <input asp-for="Input.RememberMe" type="checkbox" />
+                    <label asp-for="Input.RememberMe">Remember me?</label>
+                </div>
+
+                <button id="login-submit" type="submit" class="qc-auth-btn">LOGIN</button>
+            </form>
+        </div>
+
+        <!-- RIGHT: info panel -->
+        <div class="qc-auth-right">
+            <img src="~/images/login.webp" alt="QueueCare login" class="qc-auth-image" />
+
+            <p class="qc-auth-right-text">
+                Welcome back! Log in to book appointments, track your place in the live queue, and manage your visits.
+            </p>
+
+            <a asp-page="/Account/Register" class="qc-auth-btn-secondary">
+                Don't have an account? Register
+            </a>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
