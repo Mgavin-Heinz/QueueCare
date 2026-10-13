@@ -1,0 +1,60 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "/Views/Shared/_AuthLayout.cshtml";
+}
+
+<!-- Sliding toggle -->
+<nav class="qc-auth-slider is-register" aria-label="Account">
+    <span class="qc-slider-pill"></span>
+    <a asp-page="/Account/Register" class="active">Register</a>
+    <a asp-page="/Account/Login">Login</a>
+</nav>
+
+<section class="qc-auth-section">
+    <div class="qc-auth-card">
+
+        <!-- LEFT: form -->
+        <div class="qc-auth-left">
+            <h1 class="qc-auth-title">Create an Account</h1>
+            <p class="qc-auth-subtitle">Join QueueCare in under a minute</p>
+
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <label asp-for="Input.Email" class="qc-auth-label"></label>
+                <input asp-for="Input.Email" class="qc-auth-input" autocomplete="username" aria-required="true" placeholder="you@example.com" />
+                <span asp-validation-for="Input.Email" class="qc-auth-validation"></span>
+
+                <label asp-for="Input.Password" class="qc-auth-label"></label>
+                <input asp-for="Input.Password" class="qc-auth-input" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="qc-auth-validation"></span>
+
+                <label asp-for="Input.ConfirmPassword" class="qc-auth-label"></label>
+                <input asp-for="Input.ConfirmPassword" class="qc-auth-input" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.ConfirmPassword" class="qc-auth-validation"></span>
+
+                <button id="registerSubmit" type="submit" class="qc-auth-btn">REGISTER</button>
+            </form>
+        </div>
+
+        <!-- RIGHT: info panel -->
+        <div class="qc-auth-right">
+            <img src="~/images/register.webp" alt="QueueCare registration" class="qc-auth-image" />
+
+            <p class="qc-auth-right-text">
+                Create your account to book appointments, track your place in the live queue, and manage your visits, all in one place.
+            </p>
+
+            <a asp-page="/Account/Login" class="qc-auth-btn-secondary">
+                Already have an account? Login
+            </a>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
