@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using QueueCare.Data;
+using QueueCare.Models;
 
 namespace QueueCare.Areas.Identity.Pages.Account;
 
@@ -29,13 +30,15 @@ public class RegisterModel : PageModel
     private readonly IUserEmailStore<IdentityUser> _emailStore;
     private readonly ILogger<RegisterModel> _logger;
     private readonly IEmailSender _emailSender;
+    private readonly ApplicationDbContext _context;
 
     public RegisterModel(
         UserManager<IdentityUser> userManager,
         IUserStore<IdentityUser> userStore,
         SignInManager<IdentityUser> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        ApplicationDbContext context)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -43,56 +46,55 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _context = context;
     }
 
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     [BindProperty]
     public InputModel Input { get; set; } = default!;
 
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     public string? ReturnUrl { get; set; }
 
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     public IList<AuthenticationScheme>? ExternalLogins { get; set; }
 
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     public class InputModel
     {
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        [Required]
+        [MaxLength(100)]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; } = default!;
+
+        [Required]
+        [MaxLength(100)]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; } = default!;
+
+        [MaxLength(13)]
+        [Display(Name = "SA ID number")]
+        public string? IdNumber { get; set; }
+
+        [Required]
+        [Phone]
+        [MaxLength(20)]
+        [Display(Name = "Phone number")]
+        public string PhoneNumber { get; set; } = default!;
+
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = default!;
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = default!;
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
@@ -121,6 +123,29 @@ public class RegisterModel : PageModel
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
+
+                await _userManager.AddToRoleAsync(user, "Patient");
+                string? cleanIdnumber;
+                if (!string.IsNullOrWhiteSpace(Input.IdNumber))
+                {
+                    cleanIdnumber = Input.IdNumber.Trim();
+
+                }
+                else
+                {
+                    cleanIdnumber = null;
+                }
+                var patient = new Patient
+                {
+                    FirstName = Input.FirstName,
+                    LastName = Input.LastName,
+                    PhoneNumber = Input.PhoneNumber,
+                    IdNumber = cleanIdnumber,
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow,
+                };
+                _context.Patients.Add(patient);
+                await _context.SaveChangesAsync();
 
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
