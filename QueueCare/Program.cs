@@ -16,11 +16,16 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-// Create roles and demo accounts if they don't exist yet
+
+// Create roles, demo accounts, services and clinic days if they don't exist yet
 using (var scope = app.Services.CreateScope())
 {
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await ClinicSeeder.SeedAsync(db);
 }
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
