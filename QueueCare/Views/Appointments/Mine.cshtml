@@ -1,0 +1,48 @@
+﻿@model List<QueueCare.Models.Appointment>
+@{
+    ViewData["Title"] = "My appointments";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<div class="container py-4">
+    <h1 class="h3 mb-3">My appointments</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    <a asp-action="Book" class="btn btn-primary mb-3">Book a new appointment</a>
+
+    @if (!Model.Any())
+    {
+        <p>You have no appointments yet.</p>
+    }
+    else
+    {
+        <table class="table align-middle">
+            <thead>
+                <tr><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td>@a.ClinicDay.Service.Name</td>
+                        <td>@a.ClinicDay.Date.ToString("ddd d MMM yyyy")</td>
+                        <td>@a.SlotTime.ToString("HH:mm")</td>
+                        <td>@a.Status</td>
+                        <td>
+                            @if (a.Status == QueueCare.Models.AppointmentStatus.Booked && a.ClinicDay.Date >= today)
+                            {
+                                <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
