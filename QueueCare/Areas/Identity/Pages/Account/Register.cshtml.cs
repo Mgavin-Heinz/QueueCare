@@ -16,9 +16,11 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QueueCare.Data;
 using QueueCare.Models;
+using QueueCare.Validation;
 
 namespace QueueCare.Areas.Identity.Pages.Account;
 
@@ -49,16 +51,12 @@ public class RegisterModel : PageModel
         _context = context;
     }
 
-
     [BindProperty]
     public InputModel Input { get; set; } = default!;
 
-
     public string? ReturnUrl { get; set; }
 
-
     public IList<AuthenticationScheme>? ExternalLogins { get; set; }
-
 
     public class InputModel
     {
@@ -72,12 +70,13 @@ public class RegisterModel : PageModel
         [Display(Name = "Last name")]
         public string LastName { get; set; } = default!;
 
+        [SaIdNumber]
         [MaxLength(13)]
         [Display(Name = "SA ID number")]
         public string? IdNumber { get; set; }
 
         [Required]
-        [Phone]
+        [SaPhoneNumber]
         [MaxLength(20)]
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; } = default!;
@@ -87,20 +86,18 @@ public class RegisterModel : PageModel
         [Display(Name = "Email")]
         public string Email { get; set; } = default!;
 
-
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StrongPassword]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 8)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = default!;
-
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string? ConfirmPassword { get; set; }
     }
-
 
     public async Task OnGetAsync(string? returnUrl = null)
     {
@@ -114,6 +111,24 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
+            // Blank ID becomes null, so the unique rule only applies to real ID numbers
+            string? cleanIdnumber;
+            if (!string.IsNullOrWhiteSpace(Input.IdNumber))
+            {
+                cleanIdnumber = Input.IdNumber.Trim();
+            }
+            else
+            {
+                cleanIdnumber = null;
+            }
+
+            // Stop before the account is created if this ID number is already registered
+            if (cleanIdnumber != null && await _context.Patients.AnyAsync(p => p.IdNumber == cleanIdnumber))
+            {
+                ModelState.AddModelError("Input.IdNumber", "An account with this ID number already exists.");
+                return Page();
+            }
+
             var user = CreateUser();
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
@@ -124,25 +139,26 @@ public class RegisterModel : PageModel
             {
                 _logger.LogInformation("User created a new account with password.");
 
-                await _userManager.AddToRoleAsync(user, "Patient");
-                string? cleanIdnumber;
-                if (!string.IsNullOrWhiteSpace(Input.IdNumber))
+                var roleResult = await _userManager.AddToRoleAsync(user, "Patient");
+                if (!roleResult.Succeeded)
                 {
-                    cleanIdnumber = Input.IdNumber.Trim();
+                    // Undo the account so the person can register again with the same email
+                    await _userManager.DeleteAsync(user);
+                    foreach (var error in roleResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return Page();
+                }
 
-                }
-                else
-                {
-                    cleanIdnumber = null;
-                }
                 var patient = new Patient
                 {
                     FirstName = Input.FirstName,
                     LastName = Input.LastName,
-                    PhoneNumber = Input.PhoneNumber,
+                    PhoneNumber = PhoneNumberValidator.Normalize(Input.PhoneNumber),
                     IdNumber = cleanIdnumber,
                     UserId = user.Id,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now
                 };
                 _context.Patients.Add(patient);
                 await _context.SaveChangesAsync();

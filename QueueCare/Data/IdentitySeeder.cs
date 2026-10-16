@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using QueueCare.Models;
+using QueueCare.Validation;
 
 namespace QueueCare.Data
 {
@@ -6,7 +9,6 @@ namespace QueueCare.Data
     {
         // The four roles in QueueCare
         public static readonly string[] Roles = { "Patient", "Receptionist", "Nurse", "Admin" };
-
 
         // Test password for demo accounts only (never a real password)
         private const string DemoPassword = "Demo123!";
@@ -35,6 +37,23 @@ namespace QueueCare.Data
             await CreateUserAsync(userManager, "reception@queuecare.local", "Receptionist");
             await CreateUserAsync(userManager, "nurse@queuecare.local", "Nurse");
             await CreateUserAsync(userManager, "patient@queuecare.local", "Patient");
+
+            // 3. Give the demo patient account a patient record, so booking can be tested
+            var db = services.GetRequiredService<ApplicationDbContext>();
+            var demoPatient = await userManager.FindByEmailAsync("patient@queuecare.local");
+
+            if (demoPatient != null && !await db.Patients.AnyAsync(p => p.UserId == demoPatient.Id))
+            {
+                db.Patients.Add(new Patient
+                {
+                    FirstName = "Demo",
+                    LastName = "Patient",
+                    PhoneNumber = PhoneNumberValidator.Normalize("0821234567"),
+                    UserId = demoPatient.Id,
+                    CreatedAt = DateTime.Now
+                });
+                await db.SaveChangesAsync();
+            }
         }
 
         private static async Task CreateUserAsync(UserManager<IdentityUser> userManager, string email, string role)
@@ -50,7 +69,7 @@ namespace QueueCare.Data
                     EmailConfirmed = true
                 };
 
-                var result  = await userManager.CreateAsync(user, DemoPassword);
+                var result = await userManager.CreateAsync(user, DemoPassword);
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
