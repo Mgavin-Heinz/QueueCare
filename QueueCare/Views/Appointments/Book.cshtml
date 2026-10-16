@@ -4,36 +4,79 @@
     var days = (List<QueueCare.Models.ClinicDay>)ViewBag.ClinicDays;
 }
 
-<div class="container py-4" style="max-width: 560px;">
-    <h1 class="h3 mb-3">Book an appointment</h1>
+<section class="qb-section">
+    <div class="qb-grid">
 
-    <form asp-action="Book" method="post">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <!-- LEFT: form -->
+        <form id="bookForm" class="qb-main" asp-action="Book" method="post">
+            <h1 class="qb-title"><span class="qb-title-ink">Book</span> Appointment</h1>
 
-        <div class="mb-3">
-            <label asp-for="ClinicDayId" class="form-label"></label>
-            <select asp-for="ClinicDayId" class="form-select">
-                <option value="">-- choose a service and day --</option>
-                @foreach (var d in days)
-                {
-                    <option value="@d.ClinicDayId" selected="@(d.ClinicDayId == Model.ClinicDayId)">
-                        @d.Service.Name - @d.Date.ToString("ddd d MMM yyyy") (@d.OpenTime.ToString("HH:mm") to @d.CloseTime.ToString("HH:mm"))
-                    </option>
-                }
-            </select>
-            <span asp-validation-for="ClinicDayId" class="text-danger"></span>
-        </div>
+            <div asp-validation-summary="ModelOnly" class="qb-validation"></div>
 
-        <div class="mb-3">
-            <label asp-for="SlotTime" class="form-label"></label>
-            <input asp-for="SlotTime" type="time" step="900" class="form-control" />
-            <span asp-validation-for="SlotTime" class="text-danger"></span>
-        </div>
+            <div class="qb-top">
+                <div class="qb-fields">
+                    <div class="qb-field">
+                        <label asp-for="ClinicDayId" class="qb-label"></label>
+                        <select asp-for="ClinicDayId" class="qb-input qb-select">
+                            <option value="">Choose a service and day…</option>
+                            @foreach (var d in days)
+                            {
+                                <option value="@d.ClinicDayId" selected="@(d.ClinicDayId == Model.ClinicDayId)">
+                                    @d.Service.Name — @d.Date.ToString("ddd d MMM yyyy") (@d.OpenTime.ToString("HH:mm")–@d.CloseTime.ToString("HH:mm"))
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="ClinicDayId" class="qb-validation"></span>
+                    </div>
 
-        <button type="submit" class="btn btn-primary">Book appointment</button>
-        <a asp-action="Mine" class="btn btn-link">My appointments</a>
-    </form>
-</div>
+                    <div class="qb-field">
+                        <label asp-for="SlotTime" class="qb-label"></label>
+                        <input asp-for="SlotTime" type="time" step="900" class="qb-input" />
+                        <small class="qb-hint">Quarter-hour slots only, within the day's opening hours.</small>
+                        <span asp-validation-for="SlotTime" class="qb-validation"></span>
+                    </div>
+                </div>
+
+                <div class="qb-image" aria-hidden="true">
+                    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="14" y="22" width="92" height="84" rx="10" />
+                        <line x1="14" y1="48" x2="106" y2="48" />
+                        <line x1="38" y1="12" x2="38" y2="32" />
+                        <line x1="82" y1="12" x2="82" y2="32" />
+                        <path d="M42 78l12 12 26-28" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="qb-actions">
+                <button type="submit" class="qb-btn qb-btn-confirm">Confirm Booking</button>
+                <a asp-action="Mine" class="qb-btn qb-btn-cancel">My Appointments</a>
+            </div>
+        </form>
+
+        <!-- RIGHT: info panel -->
+        <aside class="qb-info">
+            <div class="qb-info-image" aria-hidden="true">
+                <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="20" y="36" width="80" height="62" rx="8" />
+                    <path d="M12 36l48-24 48 24" />
+                    <path d="M60 52v28M46 66h28" />
+                </svg>
+            </div>
+            <h2>Before you book</h2>
+            <p>
+                Pick a clinic day, then choose a time on the quarter hour within opening hours.
+                We check capacity and duplicates before confirming.
+            </p>
+            <ul>
+                <li>Bring your ID and clinic card</li>
+                <li>Arrive a few minutes before your slot</li>
+                <li>Cancel anytime from My Appointments</li>
+            </ul>
+        </aside>
+
+    </div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
