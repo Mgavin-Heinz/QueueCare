@@ -23,6 +23,22 @@
             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                <label asp-for="Input.FirstName" class="qc-auth-label"></label>
+                <input asp-for="Input.FirstName" class="qc-auth-input" autocomplete="given-name" aria-required="true" placeholder="Thandi" />
+                <span asp-validation-for="Input.FirstName" class="qc-auth-validation"></span>
+
+                <label asp-for="Input.LastName" class="qc-auth-label"></label>
+                <input asp-for="Input.LastName" class="qc-auth-input" autocomplete="family-name" aria-required="true" placeholder="Mokoena" />
+                <span asp-validation-for="Input.LastName" class="qc-auth-validation"></span>
+
+                <label asp-for="Input.IdNumber" class="qc-auth-label"></label>
+                <input asp-for="Input.IdNumber" class="qc-auth-input" autocomplete="off" placeholder="13-digit SA ID (optional)" />
+                <span asp-validation-for="Input.IdNumber" class="qc-auth-validation"></span>
+
+                <label asp-for="Input.PhoneNumber" class="qc-auth-label"></label>
+                <input asp-for="Input.PhoneNumber" class="qc-auth-input" autocomplete="tel" aria-required="true" placeholder="082 123 4567" />
+                <span asp-validation-for="Input.PhoneNumber" class="qc-auth-validation"></span>
+               
                 <label asp-for="Input.Email" class="qc-auth-label"></label>
                 <input asp-for="Input.Email" class="qc-auth-input" autocomplete="username" aria-required="true" placeholder="you@example.com" />
                 <span asp-validation-for="Input.Email" class="qc-auth-validation"></span>
