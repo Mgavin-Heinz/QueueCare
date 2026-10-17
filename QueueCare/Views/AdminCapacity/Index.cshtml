@@ -1,0 +1,73 @@
+@model IEnumerable<QueueCare.ViewModels.CapacityRowViewModel>
+@using QueueCare.Validation
+@{
+    ViewData["Title"] = "Daily capacity";
+    bool showPast = ViewData["ShowPast"] is true;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Daily capacity</h1>
+    <a asp-action="Create" class="btn btn-primary">Add clinic day</a>
+</div>
+
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success" role="alert">@message</div>
+}
+
+<p class="text-muted">
+    @if (showPast)
+    {
+        <span>Showing all clinic days. </span><a asp-action="Index">Show upcoming days only</a>
+    }
+    else
+    {
+        <span>Showing today and upcoming days. </span><a asp-action="Index" asp-route-showPast="true">Show past days too</a>
+    }
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Service</th>
+            <th>Hours</th>
+            <th>Capacity</th>
+            <th>Booked / checked in</th>
+            <th>Places left</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-muted">There are no clinic days to show. Click "Add clinic day" to create one.</td>
+            </tr>
+        }
+        @foreach (var row in Model)
+        {
+            int left = CapacityRules.Remaining(row.Capacity, row.Used);
+            <tr>
+                <td>@row.Date.ToString("ddd d MMM yyyy")</td>
+                <td>@row.ServiceName (@row.ServiceCode)</td>
+                <td>@row.OpenTime.ToString("HH:mm") - @row.CloseTime.ToString("HH:mm")</td>
+                <td>@row.Capacity</td>
+                <td>@row.Used</td>
+                <td>
+                    @if (left == 0)
+                    {
+                        <span class="badge bg-danger">Full</span>
+                    }
+                    else
+                    {
+                        @left
+                    }
+                </td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@row.ClinicDayId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,76 @@
+@model QueueCare.ViewModels.ClinicDayFormViewModel
+@{
+    bool isNew = Model.ClinicDayId == 0;
+    ViewData["Title"] = isNew ? "Add clinic day" : "Edit clinic day";
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@(isNew ? (int?)null : Model.ClinicDayId)" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ClinicDayId" />
+
+            @if (isNew)
+            {
+                <div class="mb-3">
+                    <label for="ServiceId" class="form-label">Service</label>
+                    <select id="ServiceId" name="ServiceId" class="form-select" asp-items="Model.Services">
+                        <option value="">Choose a service...</option>
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Date" class="form-label">Date</label>
+                    <input id="Date" name="Date" type="date" class="form-control" value="@Model.Date?.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="ServiceId" />
+                <div class="mb-3">
+                    <label class="form-label">Service</label>
+                    <input class="form-control" value="@Model.ServiceName" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input class="form-control" value="@Model.Date?.ToString("ddd d MMM yyyy")" readonly />
+                    <div class="form-text">The date and service cannot be changed because appointments may already be booked for this day.</div>
+                </div>
+                <div class="alert alert-info">
+                    @Model.Used patient(s) already booked or checked in for this day. The capacity cannot go below that number.
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label for="OpenTime" class="form-label">Opening time</label>
+                    <input id="OpenTime" name="OpenTime" type="time" class="form-control" value="@Model.OpenTime?.ToString("HH:mm")" />
+                    <span asp-validation-for="OpenTime" class="text-danger"></span>
+                </div>
+                <div class="col-6 mb-3">
+                    <label for="CloseTime" class="form-label">Closing time</label>
+                    <input id="CloseTime" name="CloseTime" type="time" class="form-control" value="@Model.CloseTime?.ToString("HH:mm")" />
+                    <span asp-validation-for="CloseTime" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="Capacity" class="form-label">Daily capacity (patients)</label>
+                <input id="Capacity" name="Capacity" type="number" min="1" class="form-control" value="@Model.Capacity" />
+                <div class="form-text">Bookings and walk-ins share this number.</div>
+                <span asp-validation-for="Capacity" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
