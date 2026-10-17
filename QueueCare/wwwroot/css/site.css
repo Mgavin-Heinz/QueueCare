@@ -1425,55 +1425,97 @@ html {
     margin-bottom: 20px;
     font-weight: 600;
 }
+/* ============================================================
+   My Appointments (Wireframe matching)
+   ============================================================ */
 
-/* Appointments list */
-.qb-appt-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 8px;
+/* Filter tabs */
+.qb-filter-tabs {
+    display: inline-flex;
+    background-color: #E5E7EB;
+    border: 2px solid var(--qc-ink);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
 }
 
-.qb-appt-card {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 20px;
+.qb-filter-tab {
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--qc-slate);
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+    .qb-filter-tab:hover {
+        color: var(--qc-ink);
+    }
+
+    .qb-filter-tab.active {
+        background-color: var(--qc-ink);
+        color: #FFFFFF;
+        box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+    }
+
+/* Table wrapper */
+.qb-table-wrapper {
     background-color: #FFFFFF;
     border: 2px solid var(--qc-ink);
-    border-radius: 14px;
-    box-shadow: 4px 4px 0 var(--qc-ink);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 6px 6px 0 var(--qc-ink);
+    margin-bottom: 24px;
 }
 
-.qb-appt-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.qb-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
 
-    .qb-appt-info strong {
-        color: var(--qc-ink);
-        font-size: 16px;
-    }
-
-    .qb-appt-info span {
-        color: var(--qc-slate);
+    .qb-table th {
+        background-color: var(--qc-ink);
+        color: #FFFFFF;
+        padding: 16px;
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
+    .qb-table td {
+        padding: 16px;
+        border-bottom: 1px solid var(--qc-light);
+        font-size: 14px;
+        color: var(--qc-slate);
+        vertical-align: middle;
+    }
+
+    .qb-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .qb-table td strong {
+        color: var(--qc-ink);
+    }
+
+/* Status Pills (Updated with Reviewer additions) */
 .qb-status {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 6px 16px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 100px;
 }
 
 .qb-status-booked {
-    background-color: rgba(74, 96, 128, 0.2);
+    background-color: #B8C0CE;
     color: var(--qc-ink);
 }
 
@@ -1492,31 +1534,117 @@ html {
     color: #B45309;
 }
 
-.qb-status-called,
-.qb-status-inconsultation {
+.qb-status-called {
     background-color: #DBEAFE;
     color: #1E40AF;
 }
 
-.qb-btn-cancel-sm {
+.qb-status-inconsultation {
+    background-color: #E0E7FF;
+    color: #4338CA;
+}
+
+/* Reviewer requested these two: */
+.qb-status-checkedin {
+    background-color: #FEF08A;
+    color: #854D0E;
+}
+
+.qb-status-completed {
+    background-color: #D1FAE5;
+    color: #047857;
+}
+
+/* Action Buttons */
+.qb-action-btn {
     padding: 8px 16px;
-    border-radius: 10px;
-    border: 2px solid #B91C1C;
-    background-color: transparent;
-    color: #B91C1C;
+    border-radius: 8px;
+    border: none;
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.1s ease;
 }
 
-    .qb-btn-cancel-sm:hover {
-        background-color: #FEE2E2;
+    .qb-action-btn:active {
+        transform: translateY(2px);
     }
 
-@media (max-width: 640px) {
-    .qb-appt-card {
-        grid-template-columns: 1fr;
-        gap: 10px;
+.qb-action-cancel {
+    background-color: #C24A47;
+    color: #FFFFFF;
+    box-shadow: 0 3px 0 #8B2F2D;
+}
+
+    .qb-action-cancel:hover {
+        background-color: #A23F3D;
+        color: #FFFFFF;
+    }
+
+/* Bottom action bar */
+.qb-bottom-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.qb-bottom-btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--qc-ink);
+    font-weight: 800;
+    font-size: 15px;
+    text-align: center;
+    text-decoration: none;
+    color: #FFFFFF;
+    box-shadow: 4px 4px 0 var(--qc-ink);
+    transition: transform 0.1s ease;
+}
+
+    .qb-bottom-btn:active {
+        transform: translate(4px, 4px);
+        box-shadow: none;
+    }
+
+.qb-btn-red {
+    background-color: #C24A47;
+}
+
+.qb-btn-green {
+    background-color: #4CAF50;
+}
+
+.qb-btn-yellow {
+    background-color: #D4C960;
+    color: var(--qc-ink);
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    .qb-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .qb-table {
+        min-width: 600px;
+    }
+
+    .qb-bottom-actions {
+        flex-direction: column;
+    }
+
+    .qb-filter-tabs {
+        width: 100%;
+        display: flex;
+    }
+
+    .qb-filter-tab {
+        flex: 1;
+        text-align: center;
     }
 }

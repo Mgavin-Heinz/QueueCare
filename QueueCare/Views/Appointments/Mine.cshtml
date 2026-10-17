@@ -1,76 +1,85 @@
 ﻿@model List<QueueCare.Models.Appointment>
 @{
     ViewData["Title"] = "My appointments";
-    var today = DateOnly.FromDateTime(DateTime.Today);
+    
+    // Pull the filter from the Controller's ViewData, default to upcoming
+    var currentFilter = ViewData["CurrentFilter"]?.ToString() ?? "upcoming";
 }
 
 <section class="qb-section">
-    <div class="qb-grid">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        
+        <h1 class="qb-title"><span class="qb-title-ink">My</span> Appointments</h1>
 
-        <div class="qb-main">
-            <h1 class="qb-title"><span class="qb-title-ink">My</span> Appointments</h1>
-
-            @if (TempData["Message"] != null)
-            {
-                <div class="qb-alert-success">@TempData["Message"]</div>
-            }
-
-            @if (!Model.Any())
-            {
-                <p class="qb-empty">You have no appointments yet.</p>
-                <div class="qb-actions" style="margin-top:20px;">
-                    <a asp-action="Book" class="qb-btn qb-btn-confirm">Book a new appointment</a>
-                </div>
-            }
-            else
-            {
-                <div class="qb-appt-list">
-                    @foreach (var a in Model)
-                    {
-                        <div class="qb-appt-card">
-                            <div class="qb-appt-info">
-                                <strong>@a.ClinicDay.Service.Name</strong>
-                                <span>@a.ClinicDay.Date.ToString("ddd d MMM yyyy") · @a.SlotTime.ToString("HH:mm")</span>
-                            </div>
-                            <div class="qb-appt-status">
-                                <span class="qb-status qb-status-@a.Status.ToString().ToLower()">@a.Status</span>
-                            </div>
-                            <div class="qb-appt-actions">
-                                @if (a.Status == QueueCare.Models.AppointmentStatus.Booked && a.ClinicDay.Date >= today)
-                                {
-                                    <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post">
-                                        <button type="submit" class="qb-btn-cancel-sm">Cancel</button>
-                                    </form>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <div class="qb-actions" style="margin-top:24px;">
-                    <a asp-action="Book" class="qb-btn qb-btn-confirm">Book a new appointment</a>
-                </div>
-            }
+        <!-- Filter Tabs -->
+        <div class="qb-filter-tabs">
+            <a href="?filter=upcoming" class="qb-filter-tab @(currentFilter == "upcoming" ? "active" : "")">Upcoming</a>
+            <a href="?filter=past" class="qb-filter-tab @(currentFilter == "past" ? "active" : "")">Past</a>
+            <a href="?filter=cancelled" class="qb-filter-tab @(currentFilter == "cancelled" ? "active" : "")">Cancelled</a>
         </div>
 
-        <aside class="qb-info">
-            <div class="qb-info-image" aria-hidden="true">
-                <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="20" y="36" width="80" height="62" rx="8" />
-                    <path d="M12 36l48-24 48 24" />
-                    <path d="M60 52v28M46 66h28" />
-                </svg>
+        @if (TempData["Message"] != null)
+        {
+            <div class="qb-alert-success">@TempData["Message"]</div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="qb-table-wrapper" style="padding: 40px; text-align: center;">
+                <p style="font-size: 16px; font-weight: 600; color: var(--qc-slate); margin-bottom: 20px;">
+                    You have no @currentFilter appointments.
+                </p>
+                @if (currentFilter == "upcoming")
+                {
+                    <a asp-action="Book" class="qb-btn qb-btn-confirm" style="display:inline-block; width:auto;">Book a new appointment</a>
+                }
             </div>
-            <h2>Your visits</h2>
-            <p>
-                All your booked, served and cancelled visits in one place.
-            </p>
-            <ul>
-                <li>Cancel at least a few hours before</li>
-                <li>Bring your ID and clinic card</li>
-                <li>Track your place from Live Queue</li>
-            </ul>
-        </aside>
+        }
+        else
+        {
+            <div class="qb-table-wrapper">
+                <table class="qb-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model)
+                        {
+                            <tr>
+                                <td><strong>@a.ClinicDay.Date.ToString("dd MMM yyyy").ToUpper()</strong></td>
+                                <td><strong>@a.SlotTime.ToString("HH:mm")</strong></td>
+                                <td>@a.ClinicDay.Service.Name</td>
+                                <td>
+                                    @{
+                                        var statusClass = a.Status.ToString().ToLower();
+                                    }
+                                    <span class="qb-status qb-status-@statusClass">@a.Status</span>
+                                </td>
+                                <td>
+                                    @if (a.Status == QueueCare.Models.AppointmentStatus.Booked)
+                                    {
+                                        <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post" style="margin:0;">
+                                            <button type="submit" class="qb-action-btn qb-action-cancel">Cancel</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <!-- Bottom Action Buttons -->
+        <div class="qb-bottom-actions">
+            <a asp-action="Book" class="qb-bottom-btn qb-btn-green">Book Another Appointment</a>
+        </div>
 
     </div>
 </section>
