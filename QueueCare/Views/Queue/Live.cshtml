@@ -1,0 +1,73 @@
+﻿@model QueueCare.Models.LiveQueueViewModel
+@{
+    ViewData["Title"] = "Live Queue";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        
+        <h1 class="qb-title"><span class="qb-title-ink">Live</span> Queue</h1>
+
+        <div class="ql-grid">
+            
+            <!-- LEFT: Image + Ticket Card -->
+            <div class="ql-left">
+                <div class="ql-image">
+                    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="14" y="22" width="92" height="84" rx="10" />
+                        <line x1="14" y1="48" x2="106" y2="48" />
+                        <line x1="38" y1="12" x2="38" y2="32" />
+                        <line x1="82" y1="12" x2="82" y2="32" />
+                        <path d="M42 78l12 12 26-28" />
+                    </svg>
+                </div>
+                
+                <div class="ql-ticket-card">
+                    <h3>Now serving: <span>@Model.NowServingTicket</span></h3>
+                    <h3>Your ticket: <span>@Model.YourTicket</span></h3>
+                </div>
+            </div>
+
+            <!-- RIGHT: Position + Progress -->
+            <div class="ql-right">
+                
+                <div class="ql-position-wrapper">
+                    <span class="ql-position-text">You are<br/>in line</span>
+                    <span class="ql-position-number">@Model.Position<sup>th</sup></span>
+                </div>
+
+                <div class="ql-wait-time">
+                    Estimated wait: about @Model.EstimatedWaitMinutes minutes
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="ql-progress-container">
+                    <div class="ql-progress-line"></div>
+                    
+                    <div class="ql-step @(Model.CurrentStage >= 1 ? "active" : "")">
+                        <div class="ql-dot"></div>
+                        <span>Waiting</span>
+                    </div>
+                    <div class="ql-step @(Model.CurrentStage >= 2 ? "active" : "")">
+                        <div class="ql-dot"></div>
+                        <span>Called</span>
+                    </div>
+                    <div class="ql-step @(Model.CurrentStage >= 3 ? "active" : "")">
+                        <div class="ql-dot"></div>
+                        <span>In Consultation</span>
+                    </div>
+                    <div class="ql-step @(Model.CurrentStage >= 4 ? "active" : "")">
+                        <div class="ql-dot"></div>
+                        <span>Served</span>
+                    </div>
+                </div>
+
+                <div class="ql-refresh-note">
+                    Updates every 30 seconds
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
