@@ -4,45 +4,73 @@
     var today = DateOnly.FromDateTime(DateTime.Today);
 }
 
-<div class="container py-4">
-    <h1 class="h3 mb-3">My appointments</h1>
+<section class="qb-section">
+    <div class="qb-grid">
 
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-success">@TempData["Message"]</div>
-    }
+        <div class="qb-main">
+            <h1 class="qb-title"><span class="qb-title-ink">My</span> Appointments</h1>
 
-    <a asp-action="Book" class="btn btn-primary mb-3">Book a new appointment</a>
+            @if (TempData["Message"] != null)
+            {
+                <div class="qb-alert-success">@TempData["Message"]</div>
+            }
 
-    @if (!Model.Any())
-    {
-        <p>You have no appointments yet.</p>
-    }
-    else
-    {
-        <table class="table align-middle">
-            <thead>
-                <tr><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-                @foreach (var a in Model)
-                {
-                    <tr>
-                        <td>@a.ClinicDay.Service.Name</td>
-                        <td>@a.ClinicDay.Date.ToString("ddd d MMM yyyy")</td>
-                        <td>@a.SlotTime.ToString("HH:mm")</td>
-                        <td>@a.Status</td>
-                        <td>
-                            @if (a.Status == QueueCare.Models.AppointmentStatus.Booked && a.ClinicDay.Date >= today)
-                            {
-                                <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
-                                </form>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-</div>
+            @if (!Model.Any())
+            {
+                <p class="qb-empty">You have no appointments yet.</p>
+                <div class="qb-actions" style="margin-top:20px;">
+                    <a asp-action="Book" class="qb-btn qb-btn-confirm">Book a new appointment</a>
+                </div>
+            }
+            else
+            {
+                <div class="qb-appt-list">
+                    @foreach (var a in Model)
+                    {
+                        <div class="qb-appt-card">
+                            <div class="qb-appt-info">
+                                <strong>@a.ClinicDay.Service.Name</strong>
+                                <span>@a.ClinicDay.Date.ToString("ddd d MMM yyyy") · @a.SlotTime.ToString("HH:mm")</span>
+                            </div>
+                            <div class="qb-appt-status">
+                                <span class="qb-status qb-status-@a.Status.ToString().ToLower()">@a.Status</span>
+                            </div>
+                            <div class="qb-appt-actions">
+                                @if (a.Status == QueueCare.Models.AppointmentStatus.Booked && a.ClinicDay.Date >= today)
+                                {
+                                    <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post">
+                                        <button type="submit" class="qb-btn-cancel-sm">Cancel</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="qb-actions" style="margin-top:24px;">
+                    <a asp-action="Book" class="qb-btn qb-btn-confirm">Book a new appointment</a>
+                </div>
+            }
+        </div>
+
+        <aside class="qb-info">
+            <div class="qb-info-image" aria-hidden="true">
+                <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="20" y="36" width="80" height="62" rx="8" />
+                    <path d="M12 36l48-24 48 24" />
+                    <path d="M60 52v28M46 66h28" />
+                </svg>
+            </div>
+            <h2>Your visits</h2>
+            <p>
+                All your booked, served and cancelled visits in one place.
+            </p>
+            <ul>
+                <li>Cancel at least a few hours before</li>
+                <li>Bring your ID and clinic card</li>
+                <li>Track your place from Live Queue</li>
+            </ul>
+        </aside>
+
+    </div>
+</section>
