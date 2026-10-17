@@ -1,0 +1,48 @@
+@model QueueCare.ViewModels.ServiceFormViewModel
+@{
+    bool isNew = Model.ServiceId == 0;
+    ViewData["Title"] = isNew ? "Add service" : "Edit service";
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@(isNew ? (int?)null : Model.ServiceId)" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ServiceId" />
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label"></label>
+                <input asp-for="Code" class="form-control" maxlength="5" />
+                <div class="form-text">The letter(s) at the start of ticket numbers, for example C for C-014. Must be unique.</div>
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AvgConsultMinutes" class="form-label"></label>
+                <input asp-for="AvgConsultMinutes" class="form-control" type="number" min="1" />
+                <div class="form-text">Used to work out the estimated wait on the live queue page.</div>
+                <span asp-validation-for="AvgConsultMinutes" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
