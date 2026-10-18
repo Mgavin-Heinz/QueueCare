@@ -3,36 +3,63 @@
     ViewData["Title"] = "Reports";
 }
 
-<h1>Reports</h1>
-<p>Last 7 days</p>
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 900px; margin: 0 auto;">
+        
+        <h1 class="qb-title"><span class="qb-title-ink">Daily</span> Reports</h1>
+        <p class="qb-hint" style="margin-bottom: 30px; font-size: 15px;">Last 7 days</p>
 
-<div class="row">
-    <div class="col-md-6">
-        <h2>Average wait</h2>
-        <p>@Model.AverageWaitMinutes.ToString("0.0") minutes</p>
-    </div>
-    <div class="col-md-6">
-        <h2>No-show rate</h2>
-        <p>@Model.NoShowRatePercent.ToString("0.0")%</p>
-    </div>
-</div>
+        <!-- Stat Cards -->
+        <div class="qr-stats" style="grid-template-columns: 1fr 1fr; max-width: 600px;">
+            <div class="qr-stat qr-stat-dark">
+                <div class="qr-stat-text">
+                    <span class="qr-stat-value">@Model.AverageWaitMinutes.ToString("0.0")</span>
+                    <span class="qr-stat-label">Avg Wait (min)</span>
+                </div>
+            </div>
+            <div class="qr-stat">
+                <div class="qr-stat-text">
+                    <span class="qr-stat-value">@Model.NoShowRatePercent.ToString("0.0")%</span>
+                    <span class="qr-stat-label">No-show Rate</span>
+                </div>
+            </div>
+        </div>
 
-<h2>Patients served per day</h2>
-@if (Model.ServedPerDay.Any())
-{
-    <table class="table">
-        <thead>
-            <tr><th>Date</th><th>Patients served</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var day in Model.ServedPerDay)
-            {
-                <tr><td>@day.Date.ToString("ddd d MMM")</td><td>@day.Count</td></tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No patients served in the last 7 days.</p>
-}
+        <!-- Table -->
+        <h2 class="qb-title" style="font-size: 24px; margin-top: 40px; margin-bottom: 20px;">
+            <span class="qb-title-ink">Patients</span> Served Per Day
+        </h2>
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patients Served</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ServedPerDay.Any())
+                    {
+                        @foreach (var day in Model.ServedPerDay)
+                        {
+                            <tr>
+                                <td><strong>@day.Date.ToString("ddd d MMM")</strong></td>
+                                <td>@day.Count</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                No patients served in the last 7 days.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</section>
