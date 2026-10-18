@@ -106,8 +106,27 @@ namespace QueueCare.Controllers
             return RedirectToAction(nameof(Mine));
         }
 
+        //// GET: /Appointments/Mine
+        //public async Task<IActionResult> Mine()
+        //{
+        //    var patient = await GetCurrentPatientAsync();
+        //    if (patient == null)
+        //    {
+        //        return View(new List<Appointment>());
+        //    }
+
+        //    var appointments = await _db.Appointments
+        //        .Include(a => a.ClinicDay)
+        //            .ThenInclude(c => c.Service)
+        //        .Where(a => a.PatientId == patient.PatientId)
+        //        .OrderByDescending(a => a.ClinicDay.Date)
+        //        .ThenBy(a => a.SlotTime)
+        //        .ToListAsync();
+
+        //    return View(appointments);
+        //}
         // GET: /Appointments/Mine
-        public async Task<IActionResult> Mine()
+        public async Task<IActionResult> Mine(string filter = "upcoming")
         {
             var patient = await GetCurrentPatientAsync();
             if (patient == null)
@@ -115,13 +134,40 @@ namespace QueueCare.Controllers
                 return View(new List<Appointment>());
             }
 
-            var appointments = await _db.Appointments
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            // Start building the query
+            var query = _db.Appointments
                 .Include(a => a.ClinicDay)
                     .ThenInclude(c => c.Service)
-                .Where(a => a.PatientId == patient.PatientId)
+                .Where(a => a.PatientId == patient.PatientId);
+
+            // Apply filters
+            if (filter == "past")
+            {
+                // Past = Any date in the past that isn't cancelled or booked
+                query = query.Where(a => a.ClinicDay.Date < today &&
+                                         a.Status != AppointmentStatus.Cancelled &&
+                                         a.Status != AppointmentStatus.Booked);
+            }
+            else if (filter == "cancelled")
+            {
+                query = query.Where(a => a.Status == AppointmentStatus.Cancelled);
+            }
+            else // "upcoming" (default)
+            {
+                // Upcoming = Booked or CheckedIn, and date is today or in the future
+                query = query.Where(a => (a.Status == AppointmentStatus.Booked || a.Status == AppointmentStatus.CheckedIn) &&
+                                         a.ClinicDay.Date >= today);
+            }
+
+            var appointments = await query
                 .OrderByDescending(a => a.ClinicDay.Date)
                 .ThenBy(a => a.SlotTime)
                 .ToListAsync();
+
+            // Pass the current filter back to the view
+            ViewData["CurrentFilter"] = filter;
 
             return View(appointments);
         }
