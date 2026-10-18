@@ -3,66 +3,78 @@
     ViewData["Title"] = "Manage services";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Manage services</h1>
-    <a asp-action="Create" class="btn btn-primary">Add service</a>
-</div>
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <h1 class="qb-title" style="margin-bottom: 0;"><span class="qb-title-ink">Manage</span> Services</h1>
+            <a asp-action="Create" class="qb-btn qb-btn-confirm" style="width: auto; padding: 12px 24px;">+ Add Service</a>
+        </div>
 
-@if (TempData["Message"] is string message)
-{
-    <div class="alert alert-success" role="alert">@message</div>
-}
+        @if (TempData["Message"] is string message)
+        {
+            <div class="qb-alert-success">@message</div>
+        }
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Ticket code</th>
-            <th>Average consultation (minutes)</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!Model.Any())
-        {
-            <tr>
-                <td colspan="5" class="text-muted">There are no services yet. Click "Add service" to create one.</td>
-            </tr>
-        }
-        @foreach (Service s in Model)
-        {
-            <tr>
-                <td>@s.Name</td>
-                <td>@s.Code</td>
-                <td>@s.AvgConsultMinutes</td>
-                <td>
-                    @if (s.IsActive)
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Ticket Code</th>
+                        <th>Avg Consult (min)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
-                        <span class="badge bg-success">Active</span>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                There are no services yet. Click "Add Service" to create one.
+                            </td>
+                        </tr>
                     }
-                    else
+                    @foreach (Service s in Model)
                     {
-                        <span class="badge bg-secondary">Deactivated</span>
+                        <tr>
+                            <td><strong>@s.Name</strong></td>
+                            <td>@s.Code</td>
+                            <td>@s.AvgConsultMinutes min</td>
+                            <td>
+                                @if (s.IsActive)
+                                {
+                                    <span class="qb-status qb-status-served">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="qb-status qb-status-cancelled">Deactivated</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="qr-actions">
+                                    <a asp-action="Edit" asp-route-id="@s.ServiceId" class="qb-action-btn" style="background-color: var(--qc-slate); color: white; box-shadow: 0 3px 0 #2D3D4F;">Edit</a>
+                                    
+                                    @if (s.IsActive)
+                                    {
+                                        <form asp-action="Deactivate" asp-route-id="@s.ServiceId" method="post" class="d-inline m-0"
+                                              onsubmit="return confirm('Deactivate this service? Patients will no longer be able to book it.');">
+                                            <button type="submit" class="qb-action-btn qb-action-cancel">Deactivate</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Activate" asp-route-id="@s.ServiceId" method="post" class="d-inline m-0">
+                                            <button type="submit" class="qb-action-btn" style="background-color: #4CAF50; color: white; box-shadow: 0 3px 0 #2E7D32;">Activate</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td class="text-end">
-                    <a asp-action="Edit" asp-route-id="@s.ServiceId" class="btn btn-sm btn-outline-secondary">Edit</a>
-                    @if (s.IsActive)
-                    {
-                        <form asp-action="Deactivate" asp-route-id="@s.ServiceId" method="post" class="d-inline"
-                              onsubmit="return confirm('Deactivate this service? Patients will no longer be able to book it.');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form asp-action="Activate" asp-route-id="@s.ServiceId" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
