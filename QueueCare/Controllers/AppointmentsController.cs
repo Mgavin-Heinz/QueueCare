@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QueueCare.Data;
 using QueueCare.Models;
+using QueueCare.Services;
 
 namespace QueueCare.Controllers
 {
@@ -11,10 +12,12 @@ namespace QueueCare.Controllers
     public class AppointmentsController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly QueueService _queue;
 
-        public AppointmentsController(ApplicationDbContext db)
+        public AppointmentsController(ApplicationDbContext db, QueueService queue)
         {
             _db = db;
+            _queue = queue;
         }
 
         // GET: /Appointments/Book
@@ -83,11 +86,9 @@ namespace QueueCare.Controllers
                 return Fail(model, "You already have an appointment for this service on that day.");
             }
 
-            var bookedCount = await _db.Appointments.CountAsync(a =>
-                a.ClinicDayId == day.ClinicDayId &&
-                a.Status != AppointmentStatus.Cancelled);
+            var usedCount = await _queue.CountUsedAsync(day.ClinicDayId);
 
-            if (bookedCount >= day.Capacity)
+            if (usedCount >= day.Capacity)
             {
                 return Fail(model, "Sorry, that day is fully booked. Please choose another day.");
             }
@@ -145,10 +146,11 @@ namespace QueueCare.Controllers
             // Apply filters
             if (filter == "past")
             {
-                // Past = Any date in the past that isn't cancelled or booked
-                query = query.Where(a => a.ClinicDay.Date < today &&
-                                         a.Status != AppointmentStatus.Cancelled &&
-                                         a.Status != AppointmentStatus.Booked);
+                // Past = visits that are finished (served or no-show), plus older non-cancelled visits that were checked in
+                query = query.Where(a => a.Status != AppointmentStatus.Cancelled &&
+                ((a.ClinicDay.Date < today && a.Status != AppointmentStatus.Booked)
+                           || a.Status == AppointmentStatus.Completed
+                           || a.Status == AppointmentStatus.NoShow));
             }
             else if (filter == "cancelled")
             {

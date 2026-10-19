@@ -1,60 +1,121 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QueueCare.Data;
 using QueueCare.Models;
+using QueueCare.Services;
 
 namespace QueueCare.Controllers
 {
-    [Authorize(Roles = "Receptionist")]
+    [Authorize(Roles = "Receptionist,Admin")]
     public class ReceptionController : Controller
     {
-        // TODO: Replace with real DB calls once Heinz builds the real logic.
-        public IActionResult Dashboard()
-        {
-            var model = new ReceptionDashboardViewModel
-            {
-                WaitingCount = 12,
-                ServedTodayCount = 34,
-                NoShowCount = 2,
-                Queue = new List<QueueItemViewModel>
-                {
-                    new() { QueueEntryId = 1, TicketNumber = "C-014", PatientName = "John Doe", ServiceName = "Chronic Meds", Status = "Called" },
-                    new() { QueueEntryId = 2, TicketNumber = "C-015", PatientName = "Jane Smith", ServiceName = "General", Status = "Waiting" },
-                    new() { QueueEntryId = 3, TicketNumber = "C-016", PatientName = "Peter X", ServiceName = "Child Health", Status = "Waiting" },
-                    new() { QueueEntryId = 4, TicketNumber = "C-017", PatientName = "Mary Jane", ServiceName = "Family Planning", Status = "Waiting" }
-                }
-            };
+        private readonly QueueService _queue;
+        private readonly ApplicationDbContext _db;
 
+        public ReceptionController(QueueService queue, ApplicationDbContext db)
+        {
+            _queue = queue;
+            _db = db;
+        }
+
+        // GET: /Reception/Dashboard
+        public async Task<IActionResult> Dashboard()
+        {
+            return View(await _queue.GetDashboardAsync());
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CallNext(int id) => Flash(await _queue.CallNextAsync(id));
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Served(int id) => Flash(await _queue.MarkServedAsync(id));
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> NoShow(int id) => Flash(await _queue.MarkNoShowAsync(id));
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Skip(int id) => Flash(await _queue.SkipAsync(id));
+
+        // POST: /Reception/CheckIn  (search box: ID number or cellphone number)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckIn(string? query)
+        {
+            var result = await _queue.CheckInAsync(query);
+
+            if (result.NeedsWalkIn)
+            {
+                TempData["Message"] = result.Message;
+                return RedirectToAction(nameof(WalkIn), new { patientId = result.PatientId, query });
+            }
+
+            return Flash(result);
+        }
+
+        // GET: /Reception/WalkIn
+        public async Task<IActionResult> WalkIn(int? patientId, string? query)
+        {
+            var model = new WalkInViewModel();
+
+            if (patientId != null)
+            {
+                var patient = await _db.Patients.FindAsync(patientId);
+                if (patient != null)
+                {
+                    model.PatientId = patient.PatientId;
+                    model.FirstName = patient.FirstName;
+                    model.LastName = patient.LastName;
+                    model.IdNumber = patient.IdNumber;
+                    model.PhoneNumber = patient.PhoneNumber;
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(query))
+            {
+                // Pre-fill whatever they typed into the search box.
+                var text = query.Trim();
+                if (text.Length == 13) model.IdNumber = text; else model.PhoneNumber = text;
+            }
+
+            await LoadTodayClinicDaysAsync();
             return View(model);
         }
 
-        // ---------- MOCK actions: wire these to the real queue logic ----------
-
+        // POST: /Reception/WalkIn
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult CallNext(int id) => Flash($"Called queue entry {id}.");
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Served(int id) => Flash($"Marked queue entry {id} as served.");
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult NoShow(int id) => Flash($"Marked queue entry {id} as a no-show.");
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Skip(int id) => Flash($"Skipped queue entry {id}.");
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult CheckIn(string? query)
+        public async Task<IActionResult> WalkIn(WalkInViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(query))
-                return Flash("Enter an ID or phone number to check someone in.");
+            await LoadTodayClinicDaysAsync();
 
-            // TODO: look the patient up by ID / phone, or start a walk-in registration
-            return Flash($"Check-in for \"{query.Trim()}\" will be wired to the real logic.");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = await _queue.AddWalkInAsync(model);
+            if (!result.Ok)
+            {
+                ModelState.AddModelError("", result.Message);
+                return View(model);
+            }
+
+            return Flash(result);
         }
 
-        private IActionResult Flash(string message)
+        // The dashboard shows TempData["Message"] as a toast, for successes and problems alike.
+        private IActionResult Flash(QueueResult result)
         {
-            TempData["Message"] = message;
+            TempData["Message"] = result.Message;
             return RedirectToAction(nameof(Dashboard));
+        }
+
+        private async Task LoadTodayClinicDaysAsync()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            ViewBag.ClinicDays = await _db.ClinicDays
+                .Include(c => c.Service)
+                .Where(c => c.Date == today && c.Service.IsActive)
+                .OrderBy(c => c.Service.Name)
+                .ToListAsync();
         }
     }
 }
