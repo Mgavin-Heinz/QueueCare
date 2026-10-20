@@ -39,10 +39,10 @@
                     @foreach (Service s in Model)
                     {
                         <tr>
-                            <td><strong>@s.Name</strong></td>
-                            <td>@s.Code</td>
-                            <td>@s.AvgConsultMinutes min</td>
-                            <td>
+                            <td data-label="Name"><strong>@s.Name</strong></td>
+                            <td data-label="Code">@s.Code</td>
+                            <td data-label="Duration">@s.AvgConsultMinutes min</td>
+                            <td data-label="Status">
                                 @if (s.IsActive)
                                 {
                                     <span class="qb-status qb-status-served">Active</span>
@@ -52,7 +52,7 @@
                                     <span class="qb-status qb-status-cancelled">Deactivated</span>
                                 }
                             </td>
-                            <td>
+                            <td data-label="Actions">
                                 <div class="qr-actions">
                                     <a asp-action="Edit" asp-route-id="@s.ServiceId" class="qb-action-btn" style="background-color: var(--qc-slate); color: white; box-shadow: 0 3px 0 #2D3D4F;">Edit</a>
                                     

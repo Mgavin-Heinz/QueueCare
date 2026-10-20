@@ -52,16 +52,16 @@
                         @foreach (var a in Model)
                         {
                             <tr>
-                                <td><strong>@a.ClinicDay.Date.ToString("dd MMM yyyy").ToUpper()</strong></td>
-                                <td><strong>@a.SlotTime.ToString("HH:mm")</strong></td>
-                                <td>@a.ClinicDay.Service.Name</td>
-                                <td>
+                                <td data-label="Date"><strong>@a.ClinicDay.Date.ToString("dd MMM yyyy").ToUpper()</strong></td>
+                                <td data-label="Time"><strong>@a.SlotTime.ToString("HH:mm")</strong></td>
+                                <td data-label="Service">@a.ClinicDay.Service.Name</td>
+                                <td data-label="Status">
                                     @{
                                         var statusClass = a.Status.ToString().ToLower();
                                     }
                                     <span class="qb-status qb-status-@statusClass">@a.Status</span>
                                 </td>
-                                <td>
+                                <td data-label="Actions">
                                     @if (a.Status == QueueCare.Models.AppointmentStatus.Booked)
                                     {
                                         <form asp-action="Cancel" asp-route-id="@a.AppointmentId" method="post" style="margin:0;">
