@@ -18,6 +18,7 @@ namespace QueueCare.Controllers
                     TicketNumber = "C-014",
                     PatientName = "John Doe",
                     ServiceName = "Chronic Meds",
+                    // Change this to "Called" to test the Start button
                     Status = "InConsultation"
                 },
                 UpcomingPatients = new List<QueueItemViewModel>
@@ -38,6 +39,16 @@ namespace QueueCare.Controllers
         {
             // TODO: Mark the appointment as Served in the DB
             TempData["Message"] = $"Consultation for queue entry {id} marked as done.";
+            return RedirectToAction(nameof(Next));
+        }
+
+        // POST: /Nurse/Start/1
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Start(int id)
+        {
+            // TODO: Mark the appointment as InConsultation in the DB
+            TempData["Message"] = $"Consultation for queue entry {id} started.";
             return RedirectToAction(nameof(Next));
         }
     }

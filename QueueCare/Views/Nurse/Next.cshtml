@@ -34,12 +34,24 @@
                     </div>
                 </div>
 
-                <form asp-action="Done" asp-route-id="@Model.CurrentPatient.QueueEntryId" method="post" class="qn-form">
-                    <button type="submit" class="qn-btn-done">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                        Mark Consultation Done
-                    </button>
-                </form>
+                @if (Model.CurrentPatient.Status == "InConsultation")
+                {
+                    <form asp-action="Done" asp-route-id="@Model.CurrentPatient.QueueEntryId" method="post" class="qn-form">
+                        <button type="submit" class="qn-btn-done">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                            Mark Consultation Done
+                        </button>
+                    </form>
+                }
+                else if (Model.CurrentPatient.Status == "Called")
+                {
+                    <form asp-action="Start" asp-route-id="@Model.CurrentPatient.QueueEntryId" method="post" class="qn-form">
+                        <button type="submit" class="qn-btn-start">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                            Start Consultation
+                        </button>
+                    </form>
+                }
             </div>
         }
         else

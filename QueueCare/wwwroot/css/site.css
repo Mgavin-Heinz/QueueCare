@@ -2832,7 +2832,38 @@ html {
     font-size: 15px;
     font-weight: 600;
 }
+.qn-btn-start {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background-color: var(--qc-slate); /* Slate blue to differentiate from Done */
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #2D3D4F;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
 
+    .qn-btn-start:hover {
+        background-color: #3A4D66;
+    }
+
+    .qn-btn-start:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #2D3D4F;
+    }
+
+    .qn-btn-start svg {
+        width: 24px;
+        height: 24px;
+    }
 /* Mobile */
 @media (max-width: 640px) {
     .qn-current-card {
