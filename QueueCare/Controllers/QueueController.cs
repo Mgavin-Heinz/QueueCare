@@ -1,24 +1,31 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QueueCare.Models;
+using QueueCare.Services;
 
 namespace QueueCare.Controllers
 {
     [Authorize(Roles = "Patient")]
     public class QueueController : Controller
     {
-        // TODO: Replace with real QueueService logic once Heinz builds it.
-        public IActionResult Live()
+        private readonly QueueService _queue;
+
+        public QueueController(QueueService queue)
         {
-            // Mock data matching your wireframe
-            var model = new LiveQueueViewModel
+            _queue = queue;
+        }
+
+        // GET: /Queue/Live
+        public async Task<IActionResult> Live()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = userId == null ? null : await _queue.GetLiveQueueAsync(userId);
+
+            if (model == null)
             {
-                Position = 4,
-                EstimatedWaitMinutes = 25,
-                NowServingTicket = "C-010",
-                YourTicket = "C-014",
-                CurrentStage = 1 // Waiting
-            };
+                TempData["Message"] = "You are not in today's queue yet. Check in at reception when you arrive.";
+                return RedirectToAction("Mine", "Appointments");
+            }
 
             return View(model);
         }
