@@ -44,8 +44,8 @@
                         @foreach (var day in Model.ServedPerDay)
                         {
                             <tr>
-                                <td><strong>@day.Date.ToString("ddd d MMM")</strong></td>
-                                <td>@day.Count</td>
+                                <td data-label="Date"><strong>@day.Date.ToString("ddd d MMM")</strong></td>
+                                <td data-label="Served">@day.Count</td>
                             </tr>
                         }
                     }
