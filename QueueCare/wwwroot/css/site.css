@@ -2592,3 +2592,294 @@ html {
         transition: none;
     }
 }
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   Nurse View (qn-*)
+   ============================================================ */
+.qn-page {
+    padding: 40px 0 80px;
+}
+
+.qn-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Toast (reusing styling pattern) */
+.qn-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFFFFF;
+    border: 2px solid var(--qc-ink);
+    border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--qc-ink);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+    .qn-toast svg {
+        width: 20px;
+        height: 20px;
+        padding: 3px;
+        border-radius: 50%;
+        background: #3C9A5F;
+        color: #FFFFFF;
+    }
+
+/* Title */
+.qn-title {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0 0 30px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--qc-slate);
+}
+
+.qn-title-ink {
+    color: var(--qc-ink);
+}
+
+.qn-title-slate {
+    color: var(--qc-slate);
+}
+
+/* The big current patient card */
+.qn-current-card {
+    background-color: var(--qc-ink);
+    color: #FFFFFF;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 8px 8px 0 var(--qc-slate);
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+.qn-current-label {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 8px;
+}
+
+.qn-current-ticket {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    color: #FFFFFF;
+}
+
+.qn-current-details {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.qn-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+}
+
+.qn-current-details strong {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* The Done Button */
+.qn-form {
+    margin: 0;
+}
+
+.qn-btn-done {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background-color: #3C9A5F;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #1F5D35;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+    .qn-btn-done:hover {
+        background-color: #43A047;
+    }
+
+    .qn-btn-done:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #1F5D35;
+    }
+
+    .qn-btn-done svg {
+        width: 24px;
+        height: 24px;
+    }
+
+/* Empty state */
+.qn-empty-card {
+    background: #F9FAFB;
+    border: 2px dashed var(--qc-slate);
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+    .qn-empty-card h2 {
+        font-size: 24px;
+        color: var(--qc-ink);
+        margin: 0 0 10px;
+    }
+
+    .qn-empty-card p {
+        color: var(--qc-slate);
+        font-size: 16px;
+        margin: 0;
+    }
+
+/* Upcoming list */
+.qn-section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--qc-ink);
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qn-count {
+    background-color: var(--qc-slate);
+    color: #FFFFFF;
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+}
+
+.qn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.qn-list-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #FFFFFF;
+    border: 2px solid var(--qc-ink);
+    border-radius: 16px;
+    padding: 16px 24px;
+    box-shadow: 4px 4px 0 var(--qc-ink);
+}
+
+.qn-list-ticket {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--qc-ink);
+    min-width: 60px;
+}
+
+.qn-list-details {
+    display: flex;
+    flex-direction: column;
+}
+
+    .qn-list-details span {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--qc-ink);
+    }
+
+    .qn-list-details small {
+        font-size: 13px;
+        color: var(--qc-slate);
+        font-weight: 600;
+    }
+
+.qn-empty-text {
+    color: var(--qc-slate);
+    font-size: 15px;
+    font-weight: 600;
+}
+.qn-btn-start {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background-color: var(--qc-slate); /* Slate blue to differentiate from Done */
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #2D3D4F;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+    .qn-btn-start:hover {
+        background-color: #3A4D66;
+    }
+
+    .qn-btn-start:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #2D3D4F;
+    }
+
+    .qn-btn-start svg {
+        width: 24px;
+        height: 24px;
+    }
+/* Mobile */
+@media (max-width: 640px) {
+    .qn-current-card {
+        padding: 24px;
+    }
+
+    .qn-current-ticket {
+        font-size: 60px;
+    }
+
+    .qn-current-details {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .qn-list-item {
+        padding: 12px 16px;
+    }
+}
