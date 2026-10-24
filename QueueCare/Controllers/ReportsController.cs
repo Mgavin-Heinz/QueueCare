@@ -15,10 +15,18 @@ namespace QueueCare.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateOnly? from, DateOnly? to, int? serviceId)
         {
+            var toDate = to ?? DateOnly.FromDateTime(DateTime.Today);
+            var fromDate = from ?? toDate.AddDays(-6);
+
+            if (fromDate > toDate)
+            {
+                (fromDate, toDate) = (toDate, fromDate);
+            }
+
             var service = new ReportService(_context);
-            var report = await service.GetReportAsync();
+            var report = await service.GetReportAsync(fromDate, toDate, serviceId);
             return View(report);
         }
     }
