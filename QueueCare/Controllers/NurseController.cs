@@ -1,55 +1,48 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QueueCare.Models;
+using QueueCare.Services;
 
 namespace QueueCare.Controllers
 {
-    [Authorize(Roles = "Nurse")]
+    [Authorize(Roles = "Nurse,Admin")]
     public class NurseController : Controller
     {
-        // TODO: Replace with real QueueService logic once it exists.
-        public IActionResult Next()
-        {
-            var model = new NurseDashboardViewModel
-            {
-                CurrentPatient = new QueueItemViewModel
-                {
-                    QueueEntryId = 1,
-                    TicketNumber = "C-014",
-                    PatientName = "John Doe",
-                    ServiceName = "Chronic Meds",
-                    // Change this to "Called" to test the Start button
-                    Status = "InConsultation"
-                },
-                UpcomingPatients = new List<QueueItemViewModel>
-                {
-                    new() { QueueEntryId = 2, TicketNumber = "C-015", PatientName = "Jane Smith", ServiceName = "General", Status = "Waiting" },
-                    new() { QueueEntryId = 3, TicketNumber = "C-016", PatientName = "Peter X", ServiceName = "Child Health", Status = "Waiting" },
-                    new() { QueueEntryId = 4, TicketNumber = "C-017", PatientName = "Mary Jane", ServiceName = "Family Planning", Status = "Waiting" }
-                }
-            };
+        private readonly QueueService _queue;
+        private readonly AuditService _audit;
 
-            return View(model);
+        public NurseController(QueueService queue, AuditService audit)
+        {
+            _queue = queue;
+            _audit = audit;
         }
 
-        // POST: /Nurse/Done/1
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Done(int id)
+        // GET: /Nurse/Next
+        public async Task<IActionResult> Next()
         {
-            // TODO: Mark the appointment as Served in the DB
-            TempData["Message"] = $"Consultation for queue entry {id} marked as done.";
+            return View(await _queue.GetNurseDashboardAsync());
+        }
+
+        // POST: /Nurse/Start/5
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Start(int id)
+        {
+            var result = await _queue.StartConsultationAsync(id);
+            if (result.Ok) await _audit.LogAsync(UserId(), "Started consultation", "QueueEntry", id.ToString());
+            TempData["Message"] = result.Message;
             return RedirectToAction(nameof(Next));
         }
 
-        // POST: /Nurse/Start/1
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Start(int id)
+        // POST: /Nurse/Done/5
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Done(int id)
         {
-            // TODO: Mark the appointment as InConsultation in the DB
-            TempData["Message"] = $"Consultation for queue entry {id} started.";
+            var result = await _queue.MarkServedAsync(id);
+            if (result.Ok) await _audit.LogAsync(UserId(), "Marked served", "QueueEntry", id.ToString());
+            TempData["Message"] = result.Message;
             return RedirectToAction(nameof(Next));
         }
+
+        private string? UserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }
