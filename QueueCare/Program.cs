@@ -18,12 +18,17 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireDigit = true;
+
+    // NFR-09 (DEF-11): lock the account for 5 minutes after 5 failed attempts
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.AllowedForNewUsers = true;
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<QueueService>();
+builder.Services.AddScoped<AuditService>();
 
 
 var app = builder.Build();

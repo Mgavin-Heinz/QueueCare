@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QueueCare.Data;
@@ -12,11 +13,13 @@ namespace QueueCare.Controllers
     {
         private readonly QueueService _queue;
         private readonly ApplicationDbContext _db;
+        private readonly AuditService _audit;
 
-        public ReceptionController(QueueService queue, ApplicationDbContext db)
+        public ReceptionController(QueueService queue, ApplicationDbContext db, AuditService audit)
         {
             _queue = queue;
             _db = db;
+            _audit = audit;
         }
 
         // GET: /Reception/Dashboard
@@ -26,18 +29,18 @@ namespace QueueCare.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> CallNext(int id) => Flash(await _queue.CallNextAsync(id));
+        public async Task<IActionResult> CallNext(int id) => await FlashAsync(await _queue.CallNextAsync(id), "Called next patient", id);
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Served(int id) => Flash(await _queue.MarkServedAsync(id));
+        public async Task<IActionResult> Served(int id) => await FlashAsync(await _queue.MarkServedAsync(id), "Marked served", id);
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> NoShow(int id) => Flash(await _queue.MarkNoShowAsync(id));
+        public async Task<IActionResult> NoShow(int id) => await FlashAsync(await _queue.MarkNoShowAsync(id), "Marked no-show", id);
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Skip(int id) => Flash(await _queue.SkipAsync(id));
+        public async Task<IActionResult> Skip(int id) => await FlashAsync(await _queue.SkipAsync(id), "Skipped patient", id);
 
-        // POST: /Reception/CheckIn  (search box: ID number or cellphone number)
+        // POST: /Reception/CheckIn  (search box: name, ID number or cellphone number)
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckIn(string? query)
         {
@@ -49,7 +52,7 @@ namespace QueueCare.Controllers
                 return RedirectToAction(nameof(WalkIn), new { patientId = result.PatientId, query });
             }
 
-            return Flash(result);
+            return await FlashAsync(result, "Checked in patient", null);
         }
 
         // GET: /Reception/WalkIn
@@ -98,12 +101,16 @@ namespace QueueCare.Controllers
                 return View(model);
             }
 
-            return Flash(result);
+            return await FlashAsync(result, "Added walk-in patient", null);
         }
 
-        // The dashboard shows TempData["Message"] as a toast, for successes and problems alike.
-        private IActionResult Flash(QueueResult result)
+        // The dashboard shows TempData["Message"] as a toast. Successful actions go to the audit log (FR-51).
+        private async Task<IActionResult> FlashAsync(QueueResult result, string auditAction, int? entryId)
         {
+            if (result.Ok)
+            {
+                await _audit.LogAsync(User.FindFirstValue(ClaimTypes.NameIdentifier), auditAction, "QueueEntry", entryId?.ToString());
+            }
             TempData["Message"] = result.Message;
             return RedirectToAction(nameof(Dashboard));
         }

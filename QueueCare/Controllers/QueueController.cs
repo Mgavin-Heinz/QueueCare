@@ -21,10 +21,10 @@ namespace QueueCare.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = userId == null ? null : await _queue.GetLiveQueueAsync(userId);
 
+            // FR-32: a patient who has not checked in sees a clear message on the Live Queue page.
             if (model == null)
             {
-                TempData["Message"] = "You are not in today's queue yet. Check in at reception when you arrive.";
-                return RedirectToAction("Mine", "Appointments");
+                return View("NotInQueue");
             }
 
             return View(model);
