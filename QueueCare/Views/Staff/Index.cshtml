@@ -1,0 +1,89 @@
+﻿@model List<QueueCare.Models.StaffRowViewModel>
+@{
+    ViewData["Title"] = "Staff accounts";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <h1 class="qb-title" style="margin-bottom: 0;"><span class="qb-title-ink">Staff</span> Accounts</h1>
+            <a asp-action="Create" class="qb-btn qb-btn-confirm" style="width: auto; padding: 12px 24px;">+ Add Staff</a>
+        </div>
+
+        @if (TempData["Message"] is string message)
+        {
+            <div class="qb-alert-success">@message</div>
+        }
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                No staff accounts yet. Click "Add Staff" to create one.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td data-label="Email"><strong>@s.Email</strong></td>
+                            <td data-label="Role">@s.Role</td>
+                            <td data-label="Status">
+                                @if (s.IsDeactivated)
+                                {
+                                    <span class="qb-status qb-status-cancelled">Deactivated</span>
+                                }
+                                else if (s.IsLockedOut)
+                                {
+                                    <span class="qb-status qb-status-booked">Locked (failed logins)</span>
+                                }
+                                else
+                                {
+                                    <span class="qb-status qb-status-served">Active</span>
+                                }
+                            </td>
+                            <td data-label="Actions">
+                                <div class="qr-actions">
+                                    <a asp-action="ResetPassword" asp-route-id="@s.Id" class="qb-action-btn" style="background-color: var(--qc-slate); color: white; box-shadow: 0 3px 0 #2D3D4F;">Reset password</a>
+
+                                    @if (!s.IsDeactivated)
+                                    {
+                                        <form asp-action="Deactivate" asp-route-id="@s.Id" method="post" class="d-inline m-0"
+                                              onsubmit="return confirm('Deactivate this account? They will not be able to log in.');">
+                                            <button type="submit" class="qb-action-btn qb-action-cancel">Deactivate</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Activate" asp-route-id="@s.Id" method="post" class="d-inline m-0">
+                                            <button type="submit" class="qb-action-btn" style="background-color: #4CAF50; color: white; box-shadow: 0 3px 0 #2E7D32;">Activate</button>
+                                        </form>
+                                    }
+
+                                    @if (s.IsLockedOut)
+                                    {
+                                        <form asp-action="Activate" asp-route-id="@s.Id" method="post" class="d-inline m-0">
+                                            <button type="submit" class="qb-action-btn" style="background-color: #4CAF50; color: white; box-shadow: 0 3px 0 #2E7D32;">Unlock</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

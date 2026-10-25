@@ -1,0 +1,41 @@
+﻿@model QueueCare.Models.StaffCreateViewModel
+@{
+    ViewData["Title"] = "Add staff";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 600px; margin: 0 auto;">
+        <h1 class="qb-title"><span class="qb-title-ink">Add</span> Staff</h1>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="qb-alert-error"></div>
+
+            <div class="qb-field">
+                <label asp-for="Email" class="qb-label">Email</label>
+                <input asp-for="Email" class="qb-input" autocomplete="off" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div class="qb-field">
+                <label asp-for="Role" class="qb-label">Role</label>
+                <select asp-for="Role" class="qb-input qb-select">
+                    <option value="Receptionist">Receptionist</option>
+                    <option value="Nurse">Nurse</option>
+                </select>
+                <span asp-validation-for="Role"></span>
+            </div>
+            <div class="qb-field">
+                <label asp-for="Password" class="qb-label">Temporary password</label>
+                <input asp-for="Password" class="qb-input" autocomplete="new-password" />
+                <span asp-validation-for="Password"></span>
+                <p class="qb-hint">At least 8 characters with an uppercase letter, a lowercase letter and a number.</p>
+            </div>
+
+            <button type="submit" class="qb-btn qb-btn-confirm">Create account</button>
+            <a asp-action="Index" style="display: inline-block; margin-top: 12px;">Cancel</a>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

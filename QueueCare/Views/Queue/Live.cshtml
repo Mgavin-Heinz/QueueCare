@@ -7,11 +7,11 @@
 
 <section class="qb-section">
     <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
-        
+
         <h1 class="qb-title"><span class="qb-title-ink">Live</span> Queue</h1>
 
         <div class="ql-grid">
-            
+
             <!-- LEFT: Image + Ticket Card -->
             <div class="ql-left">
                 <div class="ql-image">
@@ -23,7 +23,7 @@
                         <path d="M42 78l12 12 26-28" />
                     </svg>
                 </div>
-                
+
                 <div class="ql-ticket-card">
                     <h3>Now serving: <span>@Model.NowServingTicket</span></h3>
                     <h3>Your ticket: <span>@Model.YourTicket</span></h3>
@@ -32,20 +32,51 @@
 
             <!-- RIGHT: Position + Progress -->
             <div class="ql-right">
-                
-                <div class="ql-position-wrapper">
-                    <span class="ql-position-text">You are<br/>in line</span>
-                    <span class="ql-position-number">@pos<sup>@suffix</sup></span>
+
+                @* Position and estimated wait only make sense while the patient is still waiting. *@
+                @if (Model.CurrentStage == 1)
+                {
+                    <div class="ql-position-wrapper">
+                        <span class="ql-position-text">You are<br />in line</span>
+                        <span class="ql-position-number">@pos<sup>@suffix</sup></span>
+                    </div>
+
+                    <div class="ql-wait-time">
+                        Estimated wait: about @Model.EstimatedWaitMinutes minutes
+                    </div>
+                }
+                else
+                {
+                    <div class="ql-position-wrapper">
+                        <span class="ql-position-text">
+                            @switch (Model.CurrentStage)
+                            {
+                                case 2:
+                                    <text>You have<br />been called</text>
+                                    break;
+                                case 3:
+                                    <text>You are<br />being seen</text>
+                                    break;
+                                default:
+                                    <text>You have<br />been served</text>
+                                    break;
+                            }
+                    </span>
                 </div>
 
                 <div class="ql-wait-time">
-                    Estimated wait: about @Model.EstimatedWaitMinutes minutes
+                    @(Model.CurrentStage == 2
+                                        ? "Please go to the consultation room."
+                                        : Model.CurrentStage == 3
+                                        ? "Your consultation is in progress."
+                                        : "Your visit is complete for today.")
                 </div>
+                                }
 
                 <!-- Progress Bar -->
                 <div class="ql-progress-container">
                     <div class="ql-progress-line"></div>
-                    
+
                     <div class="ql-step @(Model.CurrentStage >= 1 ? "active" : "")">
                         <div class="ql-dot"></div>
                         <span>Waiting</span>
