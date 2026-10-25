@@ -14,9 +14,11 @@ namespace QueueCare.Services
         // Set when the search found nobody (or someone with no booking today) and the
         // receptionist should add them as a walk-in instead.
         public bool NeedsWalkIn { get; init; }
+
         public int? PatientId { get; init; }
 
         public static QueueResult Success(string message) => new() { Ok = true, Message = message };
+
         public static QueueResult Fail(string message) => new() { Ok = false, Message = message };
     }
 
@@ -78,21 +80,23 @@ namespace QueueCare.Services
         }
 
         /// <summary>
-        /// Check someone in by ID number or cellphone number. If they have a booking for today
+        /// Check someone in by name, ID number or cellphone number. If they have a booking for today
         /// they join the queue; otherwise the result tells the controller to open the walk-in form.
         /// </summary>
         public async Task<QueueResult> CheckInAsync(string? query)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return QueueResult.Fail("Enter an ID number or cellphone number to check someone in.");
+                return QueueResult.Fail("Enter a name, ID number or cellphone number to check someone in.");
             }
 
             var text = query.Trim();
             var phone = PhoneNumberValidator.Normalize(text);
 
             var matches = await _db.Patients
-                .Where(p => p.IdNumber == text || (phone != null && p.PhoneNumber == phone))
+                .Where(p => p.IdNumber == text
+                         || (phone != null && p.PhoneNumber == phone)
+                         || (p.FirstName + " " + p.LastName) == text)
                 .ToListAsync();
 
             if (matches.Count == 0)
@@ -101,13 +105,13 @@ namespace QueueCare.Services
                 {
                     Ok = false,
                     NeedsWalkIn = true,
-                    Message = "No patient found with that number. Add them as a walk-in."
+                    Message = "No patient found with that name or number. Add them as a walk-in."
                 };
             }
 
             if (matches.Count > 1)
             {
-                return QueueResult.Fail("More than one patient uses that number. Search with their ID number instead.");
+                return QueueResult.Fail("More than one patient matches that search. Search with their ID number instead.");
             }
 
             var patient = matches[0];
@@ -289,43 +293,39 @@ namespace QueueCare.Services
 
         // ---------------------------------------------------------------
         // Nurse
-        //// ---------------------------------------------------------------
+        // ---------------------------------------------------------------
 
-        // TODO: uncomment after Tirick's PR #21 (NurseDashboardViewModel) is merged
+        public async Task<NurseDashboardViewModel> GetNurseDashboardAsync()
+        {
+            var today = Today();
 
+            var entries = await _db.QueueEntries
+                .Include(q => q.Patient)
+                .Include(q => q.ClinicDay).ThenInclude(c => c.Service)
+                .Where(q => q.ClinicDay.Date == today
+                         && (q.Status == QueueStatus.Waiting
+                          || q.Status == QueueStatus.Called
+                          || q.Status == QueueStatus.InConsultation))
+                .OrderBy(q => q.CheckedInAt)
+                .ToListAsync();
 
-        //public async Task<NurseDashboardViewModel> GetNurseDashboardAsync()
-        //{
-        //    var today = Today();
+            // Someone already in consultation comes first, then someone who has been called.
+            var current = entries.FirstOrDefault(q => q.Status == QueueStatus.InConsultation)
+                       ?? entries.FirstOrDefault(q => q.Status == QueueStatus.Called);
 
-        //    var entries = await _db.QueueEntries
-        //        .Include(q => q.Patient)
-        //        .Include(q => q.ClinicDay).ThenInclude(c => c.Service)
-        //        .Where(q => q.ClinicDay.Date == today
-        //                 && (q.Status == QueueStatus.Waiting
-        //                  || q.Status == QueueStatus.Called
-        //                  || q.Status == QueueStatus.InConsultation))
-        //        .OrderBy(q => q.CheckedInAt)
-        //        .ToListAsync();
-
-        //    // Someone already in consultation comes first, then someone who has been called.
-        //    var current = entries.FirstOrDefault(q => q.Status == QueueStatus.InConsultation)
-        //               ?? entries.FirstOrDefault(q => q.Status == QueueStatus.Called);
-
-        //    return new NurseDashboardViewModel
-        //    {
-        //        CurrentPatient = current == null ? null : ToItem(current),
-        //        UpcomingPatients = entries
-        //            .Where(q => q.Status == QueueStatus.Waiting)
-        //            .Select(ToItem)
-        //            .ToList()
-        //    };
-        //}
+            return new NurseDashboardViewModel
+            {
+                CurrentPatient = current == null ? null : ToItem(current),
+                UpcomingPatients = entries
+                    .Where(q => q.Status == QueueStatus.Waiting)
+                    .Select(ToItem)
+                    .ToList()
+            };
+        }
 
         // ---------------------------------------------------------------
         // Patient: live queue
         // ---------------------------------------------------------------
-
         /// <summary>Returns null when the patient is not in today's queue.</summary>
         public async Task<LiveQueueViewModel?> GetLiveQueueAsync(string userId)
         {
