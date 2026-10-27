@@ -4,58 +4,65 @@
     var days = (List<QueueCare.Models.ClinicDay>)ViewBag.ClinicDays;
 }
 
-<div class="container py-4" style="max-width: 560px;">
-    <h1 class="h3 mb-3">Add walk-in patient</h1>
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 600px; margin: 0 auto;">
+        
+        <h1 class="qb-title"><span class="qb-title-ink">Add</span> Walk-in</h1>
 
-    @if (TempData["Message"] is string message)
-    {
-        <div class="alert alert-info">@message</div>
-    }
+        @if (TempData["Message"] is string message)
+        {
+            <div class="qb-alert-success">@message</div>
+        }
 
-    <form asp-action="WalkIn" method="post">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-        <input type="hidden" asp-for="PatientId" />
+        <form asp-action="WalkIn" method="post" class="qb-book-form">
+            <div asp-validation-summary="ModelOnly" class="qb-validation"></div>
+            <input type="hidden" asp-for="PatientId" />
 
-        <div class="mb-3">
-            <label asp-for="ClinicDayId" class="form-label"></label>
-            <select asp-for="ClinicDayId" class="form-select">
-                <option value="">-- choose a service --</option>
-                @foreach (var d in days)
-                {
-                    <option value="@d.ClinicDayId" selected="@(d.ClinicDayId == Model.ClinicDayId)">@d.Service.Name</option>
-                }
-            </select>
-            <span asp-validation-for="ClinicDayId" class="text-danger"></span>
-        </div>
+            <div class="qb-field">
+                <label asp-for="ClinicDayId" class="qb-label"></label>
+                <select asp-for="ClinicDayId" class="qb-input qb-select">
+                    <option value="">-- choose a service --</option>
+                    @foreach (var d in days)
+                    {
+                        <option value="@d.ClinicDayId" selected="@(d.ClinicDayId == Model.ClinicDayId)">
+                            @d.Service.Name — @d.Date.ToString("ddd d MMM")
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="ClinicDayId" class="qb-validation"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="FirstName" class="form-label"></label>
-            <input asp-for="FirstName" class="form-control" />
-            <span asp-validation-for="FirstName" class="text-danger"></span>
-        </div>
+            <div class="qb-field">
+                <label asp-for="FirstName" class="qb-label"></label>
+                <input asp-for="FirstName" class="qb-input" />
+                <span asp-validation-for="FirstName" class="qb-validation"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="LastName" class="form-label"></label>
-            <input asp-for="LastName" class="form-control" />
-            <span asp-validation-for="LastName" class="text-danger"></span>
-        </div>
+            <div class="qb-field">
+                <label asp-for="LastName" class="qb-label"></label>
+                <input asp-for="LastName" class="qb-input" />
+                <span asp-validation-for="LastName" class="qb-validation"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="IdNumber" class="form-label"></label>
-            <input asp-for="IdNumber" class="form-control" />
-            <span asp-validation-for="IdNumber" class="text-danger"></span>
-        </div>
+            <div class="qb-field">
+                <label asp-for="IdNumber" class="qb-label"></label>
+                <input asp-for="IdNumber" class="qb-input" placeholder="Optional" />
+                <span asp-validation-for="IdNumber" class="qb-validation"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="PhoneNumber" class="form-label"></label>
-            <input asp-for="PhoneNumber" class="form-control" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
+            <div class="qb-field">
+                <label asp-for="PhoneNumber" class="qb-label"></label>
+                <input asp-for="PhoneNumber" class="qb-input" />
+                <span asp-validation-for="PhoneNumber" class="qb-validation"></span>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Add to queue</button>
-        <a asp-action="Dashboard" class="btn btn-link">Back to dashboard</a>
-    </form>
-</div>
+            <div class="qb-actions" style="flex-direction: row; margin-top: 24px;">
+                <button type="submit" class="qb-btn qb-btn-confirm">Add to queue</button>
+                <a asp-action="Dashboard" class="qb-btn qb-btn-ghost">Back to dashboard</a>
+            </div>
+        </form>
+    </div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
