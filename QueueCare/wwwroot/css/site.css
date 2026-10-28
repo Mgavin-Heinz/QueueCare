@@ -2571,6 +2571,78 @@ html {
 
 /* ---------- Small Phone (<= 720px) ---------- */
 @media (max-width: 720px) {
+    /* --- Mobile Header Fixes --- */
+    .qc-header {
+        padding: 8px 16px;
+        overflow: hidden;
+    }
+
+        .qc-header > .d-flex {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+    .qc-brand {
+        flex-shrink: 0;
+        margin-right: 12px;
+    }
+
+    .qc-logo {
+        height: 28px;
+    }
+
+    .qc-brand-text {
+        font-size: 18px;
+    }
+
+
+    .qc-user-greeting {
+        display: none;
+    }
+
+    .qc-nav-divider {
+        display: none;
+    }
+
+
+    .qc-nav-right {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        gap: 2px;
+        margin-left: auto;
+        padding-bottom: 4px;
+    }
+
+        .qc-nav-right::-webkit-scrollbar {
+            display: none;
+        }
+
+    .qc-nav-link {
+        padding: 6px 8px;
+        flex-shrink: 0;
+    }
+
+    .qc-nav-label {
+        display: none;
+    }
+
+    .qc-nav-link svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .qc-nav-right form {
+        flex-shrink: 0;
+    }
+
+    .qc-nav-right {
+        position: relative;
+        mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    }
     /* Reception Dashboard tweaks */
     .qr-page {
         padding: 24px 0 56px;
@@ -2632,6 +2704,27 @@ html {
     }
 }
 
+@media (max-width: 640px) {
+    .qn-current-card {
+        padding: 24px;
+    }
+
+    .qn-current-ticket {
+        font-size: 60px;
+    }
+
+    .qn-current-details {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .qn-list-item {
+        padding: 12px 16px;
+    }
+}
+
+
+
 /* ---------- Extra Small Phone (<= 560px) ---------- */
 @media (max-width: 560px) {
     .qb-top {
@@ -2681,15 +2774,10 @@ html {
 
 
 
-
-
-
-
-
-
 /* ============================================================
    Nurse View (qn-*)
    ============================================================ */
+
 .qn-page {
     padding: 40px 0 80px;
 }
@@ -2927,7 +3015,7 @@ html {
     padding: 18px;
     border-radius: 16px;
     border: none;
-    background-color: var(--qc-slate); /* Slate blue to differentiate from Done */
+    background-color: var(--qc-slate); 
     color: #FFFFFF;
     font-size: 18px;
     font-weight: 800;
@@ -2950,22 +3038,3 @@ html {
         width: 24px;
         height: 24px;
     }
-/* Mobile */
-@media (max-width: 640px) {
-    .qn-current-card {
-        padding: 24px;
-    }
-
-    .qn-current-ticket {
-        font-size: 60px;
-    }
-
-    .qn-current-details {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .qn-list-item {
-        padding: 12px 16px;
-    }
-}

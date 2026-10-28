@@ -5,69 +5,78 @@
     bool showPast = ViewData["ShowPast"] is true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Daily capacity</h1>
-    <a asp-action="Create" class="btn btn-primary">Add clinic day</a>
-</div>
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <h1 class="qb-title" style="margin-bottom: 0;"><span class="qb-title-ink">Daily</span> Capacity</h1>
+            <a asp-action="Create" class="qb-btn qb-btn-confirm" style="width: auto; padding: 12px 24px;">+ Add Clinic Day</a>
+        </div>
 
-@if (TempData["Message"] is string message)
-{
-    <div class="alert alert-success" role="alert">@message</div>
-}
-
-<p class="text-muted">
-    @if (showPast)
-    {
-        <span>Showing all clinic days. </span><a asp-action="Index">Show upcoming days only</a>
-    }
-    else
-    {
-        <span>Showing today and upcoming days. </span><a asp-action="Index" asp-route-showPast="true">Show past days too</a>
-    }
-</p>
-
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Service</th>
-            <th>Hours</th>
-            <th>Capacity</th>
-            <th>Booked / checked in</th>
-            <th>Places left</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!Model.Any())
+        @if (TempData["Message"] is string message)
         {
-            <tr>
-                <td colspan="7" class="text-muted">There are no clinic days to show. Click "Add clinic day" to create one.</td>
-            </tr>
+            <div class="qb-alert-success">@message</div>
         }
-        @foreach (var row in Model)
-        {
-            int left = CapacityRules.Remaining(row.Capacity, row.Used);
-            <tr>
-                <td>@row.Date.ToString("ddd d MMM yyyy")</td>
-                <td>@row.ServiceName (@row.ServiceCode)</td>
-                <td>@row.OpenTime.ToString("HH:mm") - @row.CloseTime.ToString("HH:mm")</td>
-                <td>@row.Capacity</td>
-                <td>@row.Used</td>
-                <td>
-                    @if (left == 0)
+
+        <p class="qb-hint" style="margin-bottom: 20px;">
+            @if (showPast)
+            {
+                <span>Showing all clinic days. </span><a asp-action="Index" style="color: var(--qc-slate); font-weight: 700;">Show upcoming days only</a>
+            }
+            else
+            {
+                <span>Showing today and upcoming days. </span><a asp-action="Index" asp-route-showPast="true" style="color: var(--qc-slate); font-weight: 700;">Show past days too</a>
+            }
+        </p>
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Service</th>
+                        <th>Hours</th>
+                        <th>Capacity</th>
+                        <th>Booked</th>
+                        <th>Places Left</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
-                        <span class="badge bg-danger">Full</span>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                There are no clinic days to show. Click "Add Clinic Day" to create one.
+                            </td>
+                        </tr>
                     }
-                    else
+                    @foreach (var row in Model)
                     {
-                        @left
+                        int left = CapacityRules.Remaining(row.Capacity, row.Used);
+                        <tr>
+                            <td data-label="Date"><strong>@row.Date.ToString("ddd d MMM yyyy")</strong></td>
+                            <td data-label="Service">@row.ServiceName (@row.ServiceCode)</td>
+                            <td data-label="Hours">@row.OpenTime.ToString("HH:mm") – @row.CloseTime.ToString("HH:mm")</td>
+                            <td data-label="Capacity">@row.Capacity</td>
+                            <td data-label="Booked">@row.Used</td>
+                            <td data-label="Places Left">
+                                @if (left == 0)
+                                {
+                                    <span class="qb-status qb-status-cancelled">Full</span>
+                                }
+                                else
+                                {
+                                    <span>@left</span>
+                                }
+                            </td>
+                            <td data-label="Actions">
+                                <a asp-action="Edit" asp-route-id="@row.ClinicDayId" class="qb-action-btn" style="background-color: var(--qc-slate); color: white; box-shadow: 0 3px 0 #2D3D4F;">Edit</a>
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td class="text-end">
-                    <a asp-action="Edit" asp-route-id="@row.ClinicDayId" class="btn btn-sm btn-outline-secondary">Edit</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
