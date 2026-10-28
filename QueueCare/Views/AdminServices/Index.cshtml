@@ -1,0 +1,80 @@
+@model IEnumerable<Service>
+@{
+    ViewData["Title"] = "Manage services";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <h1 class="qb-title" style="margin-bottom: 0;"><span class="qb-title-ink">Manage</span> Services</h1>
+            <a asp-action="Create" class="qb-btn qb-btn-confirm" style="width: auto; padding: 12px 24px;">+ Add Service</a>
+        </div>
+
+        @if (TempData["Message"] is string message)
+        {
+            <div class="qb-alert-success">@message</div>
+        }
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Ticket Code</th>
+                        <th>Avg Consult (min)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                There are no services yet. Click "Add Service" to create one.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (Service s in Model)
+                    {
+                        <tr>
+                            <td data-label="Name"><strong>@s.Name</strong></td>
+                            <td data-label="Code">@s.Code</td>
+                            <td data-label="Duration">@s.AvgConsultMinutes min</td>
+                            <td data-label="Status">
+                                @if (s.IsActive)
+                                {
+                                    <span class="qb-status qb-status-served">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="qb-status qb-status-cancelled">Deactivated</span>
+                                }
+                            </td>
+                            <td data-label="Actions">
+                                <div class="qr-actions">
+                                    <a asp-action="Edit" asp-route-id="@s.ServiceId" class="qb-action-btn" style="background-color: var(--qc-slate); color: white; box-shadow: 0 3px 0 #2D3D4F;">Edit</a>
+                                    
+                                    @if (s.IsActive)
+                                    {
+                                        <form asp-action="Deactivate" asp-route-id="@s.ServiceId" method="post" class="d-inline m-0"
+                                              onsubmit="return confirm('Deactivate this service? Patients will no longer be able to book it.');">
+                                            <button type="submit" class="qb-action-btn qb-action-cancel">Deactivate</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Activate" asp-route-id="@s.ServiceId" method="post" class="d-inline m-0">
+                                            <button type="submit" class="qb-action-btn" style="background-color: #4CAF50; color: white; box-shadow: 0 3px 0 #2E7D32;">Activate</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,43 @@
+﻿@model List<QueueCare.Models.AuditLog>
+@{
+    ViewData["Title"] = "Audit log";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 1200px; margin: 0 auto;">
+        <h1 class="qb-title"><span class="qb-title-ink">Audit</span> Log</h1>
+        <p class="qb-hint" style="margin-bottom: 24px;">The latest 200 actions, newest first.</p>
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>When</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Item</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                No actions have been logged yet.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td data-label="When">@a.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td data-label="User">@a.User?.Email</td>
+                            <td data-label="Action">@a.Action</td>
+                            <td data-label="Item">@a.EntityName@(string.IsNullOrEmpty(a.EntityId) ? "" : " #" + a.EntityId)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

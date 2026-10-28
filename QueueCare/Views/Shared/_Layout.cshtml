@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - QueueCare</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/QueueCare.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="qc-header">
+        <div class="d-flex align-items-center w-100">
+
+            @* ---------- LEFT: LOGO + BRAND TEXT ---------- *@
+            <a class="qc-brand" asp-controller="Home" asp-action="Index">
+                <img src="~/images/logo_v1.png" alt="QueueCare logo" class="qc-logo" />
+                <span class="qc-brand-text">
+                    <span class="qc-brand-queue">Queue</span><span class="qc-brand-care">Care</span>
+                </span>
+            </a>
+
+            @* ---------- RIGHT: GREETING + ICON NAV ---------- *@
+            <div class="qc-nav-right">
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @* Username greeting *@
+                    <span class="qc-user-greeting">
+                        Hello <strong>@User.Identity.Name</strong>!
+                    </span>
+
+                                        @* Home icon *@
+                    <a class="qc-nav-link" asp-controller="Home" asp-action="Index" title="Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        </svg>
+                        <span class="qc-nav-label">Home</span>
+                    </a>
+
+                    @* ---------- PATIENT LINKS ---------- *@
+                    @if (User.IsInRole("Patient"))
+                    {
+                        <a class="qc-nav-link" asp-controller="Appointments" asp-action="Book" title="Book">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span class="qc-nav-label">Book</span>
+                        </a>
+                        <a class="qc-nav-link" asp-controller="Appointments" asp-action="Mine" title="My Appointments">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <span class="qc-nav-label">My Appts</span>
+                        </a>
+                    }
+
+                    @* ---------- RECEPTIONIST LINKS ---------- *@
+                    @if (User.IsInRole("Receptionist"))
+                    {
+                        <a class="qc-nav-link" asp-controller="Reception" asp-action="Dashboard" title="Reception Dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="9"></rect>
+                                <rect x="14" y="3" width="7" height="5"></rect>
+                                <rect x="14" y="12" width="7" height="9"></rect>
+                                <rect x="3" y="16" width="7" height="5"></rect>
+                            </svg>
+                            <span class="qc-nav-label">Reception</span>
+                        </a>
+                    }
+
+                    @* ---------- NURSE LINKS ---------- *@
+                    @if (User.IsInRole("Nurse"))
+                    {
+                        <a class="qc-nav-link" asp-controller="Nurse" asp-action="Next" title="Nurse View">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
+                            <span class="qc-nav-label">Nurse</span>
+                        </a>
+                    }
+
+                    @* ---------- ADMIN LINKS ---------- *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="qc-nav-link" asp-controller="AdminServices" asp-action="Index" title="Services">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            <span class="qc-nav-label">Services</span>
+                        </a>
+                        <a class="qc-nav-link" asp-controller="Reports" asp-action="Index" title="Reports">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                            <span class="qc-nav-label">Reports</span>
+                        </a>
+                        <a class="qc-nav-link" asp-controller="Staff" asp-action="Index" title="Staff">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="qc-nav-label">Staff</span>
+                        </a>
+                        <a class="qc-nav-link" asp-controller="Audit" asp-action="Index" title="Audit log">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                            <span class="qc-nav-label">Audit</span>
+                        </a>
+                    }
+
+                    <div class="qc-nav-divider"></div>
+
+                    @* Logout icon *@
+                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline m-0">
+                        <button type="submit" class="qc-nav-link" title="Logout">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            <span class="qc-nav-label">Logout</span>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    @* Home icon *@
+                    <a class="qc-nav-link" asp-controller="Home" asp-action="Index" title="Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        </svg>
+                        <span class="qc-nav-label">Home</span>
+                    </a>
+
+                    <div class="qc-nav-divider"></div>
+
+                    @* Register icon *@
+                    <a class="qc-nav-link" asp-area="Identity" asp-page="/Account/Register" title="Register">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <line x1="19" y1="8" x2="19" y2="14" />
+                            <line x1="22" y1="11" x2="16" y2="11" />
+                        </svg>
+                        <span class="qc-nav-label">Register</span>
+                    </a>
+
+                    <div class="qc-nav-divider"></div>
+
+                    @* Login icon *@
+                    <a class="qc-nav-link" asp-area="Identity" asp-page="/Account/Login" title="Login">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                            <polyline points="10 17 15 12 10 7" />
+                            <line x1="15" y1="12" x2="3" y2="12" />
+                        </svg>
+                        <span class="qc-nav-label">Login</span>
+                    </a>
+                }
+
+            </div>
+        </div>
+    </header>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="qc-footer">
+        <div class="qc-footer-top">
+            <img src="~/images/logo_v1.png" alt="QueueCare" class="qc-footer-logo" />
+            <span class="qc-footer-brand">QueueCare</span>
+        </div>
+        <p class="qc-footer-tagline">
+            Skip the waiting room. Book appointments and track your place in the live queue.
+        </p>
+
+        <div class="qc-footer-island">
+            <h4>General</h4>
+            <h4>Help</h4>
+            <h4>Location</h4>
+            <h4>Socials</h4>
+        </div>
+
+        <div class="qc-footer-columns">
+            <ul>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+                <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+            </ul>
+            <ul>
+                <li><a href="mailto:support@queuecare.local">Customer Service</a></li>
+                <li><a href="https://www.gov.za/about-sa/health" target="_blank" rel="noopener">Health Info</a></li>
+            </ul>
+            <div>
+                <iframe class="qc-footer-map" title="QueueCare location — Bloemfontein" loading="lazy"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d446147.6222073672!2d25.89356986006226!3d-29.119604233731266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e8fc57b9f07bf8b%3A0x1f16f55bb211b749!2sBloemfontein!5e0!3m2!1sen!2sza!4v1791916465352!5m2!1sen!2sza"
+                        allowfullscreen="" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="qc-footer-social">
+                <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><line x1="17.5" y1="6.5" x2="17.5" y2="6.5" /></svg>
+                </a>
+                <a href="https://www.linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.5 4.73-2.5 5.06 0 6 3.3 6 7.6V24h-5v-7.5c0-1.8-.03-4.1-2.5-4.1-2.5 0-2.9 1.96-2.9 4v7.6h-5V8z" /></svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="qc-footer-bigbrand" aria-hidden="true">
+            <span class="qc-footer-queue">Queue</span><span class="qc-footer-care">Care</span>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

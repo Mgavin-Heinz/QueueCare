@@ -1,0 +1,189 @@
+﻿@model QueueCare.Models.ReceptionDashboardViewModel
+@{
+    ViewData["Title"] = "Reception Dashboard";
+}
+
+<section class="qr-page">
+    <div class="qr-wrap">
+
+        @if (TempData["Message"] is string message)
+        {
+            <div class="qr-toast" role="status" id="qrToast">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                <span>@message</span>
+            </div>
+        }
+
+        <!-- Title + live indicator -->
+        <div class="qr-head">
+            <h1 class="qr-title"><span class="qr-title-ink">Reception</span> <span class="qr-title-slate">Dashboard</span></h1>
+
+            <div class="qr-live">
+                <span class="qr-live-dot" aria-hidden="true"></span>
+                <span class="qr-live-text">Live &middot; updated <strong id="qrStamp">now</strong></span>
+                <button type="button" id="qrRefresh" class="qr-live-btn" title="Refresh now">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10" /></svg>
+                    <span id="qrCountdown">30s</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search / check-in -->
+        <form class="qr-checkin" asp-controller="Reception" asp-action="CheckIn" method="post">
+            <div class="qr-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <input id="qrSearch" name="query" type="text" class="qr-input" placeholder="Search by name, ID or phone number"
+                       autocomplete="off" inputmode="search" aria-label="Search by name, ID or phone number" />
+            </div>
+            <button type="submit" class="qr-btn qr-btn-primary">Check In / Walk-in</button>
+        </form>
+
+        <!-- Everything inside here is refreshed every 30 seconds -->
+        <div id="qrLive">
+
+            <!-- Stats -->
+            <div class="qr-stats">
+                <div class="qr-stat qr-stat-dark">
+                    <div class="qr-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                    </div>
+                    <div class="qr-stat-text">
+                        <span class="qr-stat-value">@Model.WaitingCount</span>
+                        <span class="qr-stat-label">Waiting</span>
+                    </div>
+                </div>
+                <div class="qr-stat">
+                    <div class="qr-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                    </div>
+                    <div class="qr-stat-text">
+                        <span class="qr-stat-value">@Model.ServedTodayCount</span>
+                        <span class="qr-stat-label">Served today</span>
+                    </div>
+                </div>
+                <div class="qr-stat">
+                    <div class="qr-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="17" y1="8" x2="22" y2="13" /><line x1="22" y1="8" x2="17" y2="13" /></svg>
+                    </div>
+                    <div class="qr-stat-text">
+                        <span class="qr-stat-value">@Model.NoShowCount</span>
+                        <span class="qr-stat-label">No-shows</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue -->
+            <h2 class="qr-section-title">Today's queue <span class="qr-count">@Model.Queue.Count</span></h2>
+
+            <table class="qr-table">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Patient</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Queue.Any())
+                    {
+                        <tr class="qr-empty">
+                            <td colspan="5">Nobody in the queue right now. Use the search bar above to check someone in.</td>
+                        </tr>
+                    }
+
+                    @foreach (var item in Model.Queue)
+                    {
+                        var isCalled = item.Status == "Called";
+                        var isInConsultation = item.Status == "InConsultation";
+                        var isWaiting = item.Status == "Waiting";
+                        var isActive = isCalled || isInConsultation;
+                        var statusLabel = isInConsultation ? "In consultation" : item.Status;
+
+                        <tr class="@(isActive ? "qr-row-active" : "")">
+                            <td class="qr-td-ticket" data-label="Ticket"><strong class="qr-ticket">@item.TicketNumber</strong></td>
+                            <td class="qr-td-patient" data-label="Patient">
+                                <span class="qr-patient">@item.PatientName</span>
+                                @if (isActive)
+                                {
+                                    <span class="qr-now">Now</span>
+                                }
+                            </td>
+                            <td class="qr-td-service" data-label="Service">@item.ServiceName</td>
+                            <td class="qr-td-status" data-label="Status">
+                                <span class="qr-status qr-status-@item.Status.ToLowerInvariant()">@statusLabel</span>
+                            </td>
+                            <td class="qr-td-actions" data-label="Actions">
+                                <div class="qr-actions">
+                                    <form asp-controller="Reception" asp-action="CallNext" asp-route-id="@item.QueueEntryId" method="post">
+                                        <button type="submit" class="qr-btn qr-btn-call" disabled="@(!isWaiting)">Call Next</button>
+                                    </form>
+                                    <form asp-controller="Reception" asp-action="Served" asp-route-id="@item.QueueEntryId" method="post">
+                                        <button type="submit" class="qr-btn qr-btn-served" disabled="@(!isActive)">Served</button>
+                                    </form>
+                                    <form asp-controller="Reception" asp-action="NoShow" asp-route-id="@item.QueueEntryId" method="post">
+                                        <button type="submit" class="qr-btn qr-btn-noshow" disabled="@(!isCalled)">No-Show</button>
+                                    </form>
+                                    <form asp-controller="Reception" asp-action="Skip" asp-route-id="@item.QueueEntryId" method="post">
+                                        <button type="submit" class="qr-btn qr-btn-skip" disabled="@(!isCalled)">Skip</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var INTERVAL = 30;
+            var left = INTERVAL;
+            var busy = false;
+            var live = document.getElementById("qrLive");
+            var stamp = document.getElementById("qrStamp");
+            var countdown = document.getElementById("qrCountdown");
+            var search = document.getElementById("qrSearch");
+            var toast = document.getElementById("qrToast");
+
+            function now() {
+                return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            }
+
+            function paused() {
+                return document.hidden || (search && (document.activeElement === search || search.value.length > 0));
+            }
+
+            function refresh() {
+                if (busy) return;
+                busy = true;
+                fetch(window.location.href, { credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } })
+                    .then(function (r) { if (!r.ok) throw new Error("bad response"); return r.text(); })
+                    .then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, "text/html");
+                        var fresh = doc.getElementById("qrLive");
+                        if (fresh) { live.innerHTML = fresh.innerHTML; stamp.textContent = now(); }
+                    })
+                    .catch(function () { stamp.textContent = "failed, retrying"; })
+                    .then(function () { busy = false; left = INTERVAL; });
+            }
+
+            stamp.textContent = now();
+
+            setInterval(function () {
+                if (paused()) { countdown.textContent = "paused"; return; }
+                left -= 1;
+                if (left <= 0) { refresh(); left = INTERVAL; }
+                countdown.textContent = left + "s";
+            }, 1000);
+
+            document.getElementById("qrRefresh").addEventListener("click", function () { refresh(); });
+
+            if (toast) { setTimeout(function () { toast.classList.add("is-hidden"); }, 5000); }
+        })();
+    </script>
+}

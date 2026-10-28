@@ -1,0 +1,62 @@
+﻿@model QueueCare.Models.WalkInViewModel
+@{
+    ViewData["Title"] = "Add walk-in";
+    var days = (List<QueueCare.Models.ClinicDay>)ViewBag.ClinicDays;
+}
+
+<div class="container py-4" style="max-width: 560px;">
+    <h1 class="h3 mb-3">Add walk-in patient</h1>
+
+    @if (TempData["Message"] is string message)
+    {
+        <div class="alert alert-info">@message</div>
+    }
+
+    <form asp-action="WalkIn" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="PatientId" />
+
+        <div class="mb-3">
+            <label asp-for="ClinicDayId" class="form-label"></label>
+            <select asp-for="ClinicDayId" class="form-select">
+                <option value="">-- choose a service --</option>
+                @foreach (var d in days)
+                {
+                    <option value="@d.ClinicDayId" selected="@(d.ClinicDayId == Model.ClinicDayId)">@d.Service.Name</option>
+                }
+            </select>
+            <span asp-validation-for="ClinicDayId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FirstName" class="form-label"></label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="LastName" class="form-label"></label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="IdNumber" class="form-label"></label>
+            <input asp-for="IdNumber" class="form-control" />
+            <span asp-validation-for="IdNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add to queue</button>
+        <a asp-action="Dashboard" class="btn btn-link">Back to dashboard</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

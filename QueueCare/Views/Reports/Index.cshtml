@@ -1,0 +1,87 @@
+﻿@model QueueCare.Models.ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 900px; margin: 0 auto;">
+
+        <h1 class="qb-title"><span class="qb-title-ink">Daily</span> Reports</h1>
+        <p class="qb-hint" style="margin-bottom: 30px; font-size: 15px;">@Model.FromDate.ToString("d MMM yyyy") to @Model.ToDate.ToString("d MMM yyyy")</p>
+        <!-- Stat Cards -->
+        <div class="qr-stats" style="grid-template-columns: 1fr 1fr; max-width: 600px;">
+            <div class="qr-stat qr-stat-dark">
+                <div class="qr-stat-text">
+                    <span class="qr-stat-value">@Model.AverageWaitMinutes.ToString("0.0")</span>
+                    <span class="qr-stat-label">Avg Wait (min)</span>
+                </div>
+            </div>
+            <div class="qr-stat">
+                <div class="qr-stat-text">
+                    <span class="qr-stat-value">@Model.NoShowRatePercent.ToString("0.0")%</span>
+                    <span class="qr-stat-label">No-show Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters (FR-55) -->
+        <form method="get" asp-action="Index" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; align-items: end; margin-bottom: 30px;">
+            <div class="qb-field" style="margin-bottom: 0;">
+                <label for="from" class="qb-label">From</label>
+                <input id="from" name="from" type="date" class="qb-input" value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="qb-field" style="margin-bottom: 0;">
+                <label for="to" class="qb-label">To</label>
+                <input id="to" name="to" type="date" class="qb-input" value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="qb-field" style="margin-bottom: 0;">
+                <label for="serviceId" class="qb-label">Service</label>
+                <select id="serviceId" name="serviceId" class="qb-input qb-select">
+                    <option value="">All services</option>
+                    @foreach (var s in Model.Services)
+                    {
+                        <option value="@s.ServiceId" selected="@(Model.ServiceId == s.ServiceId)">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="qb-btn qb-btn-confirm">Apply</button>
+        </form>
+
+        <!-- Table -->
+        <h2 class="qb-title" style="font-size: 24px; margin-top: 40px; margin-bottom: 20px;">
+            <span class="qb-title-ink">Patients</span> Served Per Day
+        </h2>
+
+        <div class="qb-table-wrapper">
+            <table class="qb-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patients Served</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ServedPerDay.Any())
+                    {
+                        @foreach (var day in Model.ServedPerDay)
+                        {
+                            <tr>
+                                <td data-label="Date"><strong>@day.Date.ToString("ddd d MMM")</strong></td>
+                                <td data-label="Served">@day.Count</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: var(--qc-slate); font-weight: 600; padding: 30px;">
+                                No patients served in this period.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</section>

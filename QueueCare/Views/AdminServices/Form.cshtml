@@ -1,0 +1,51 @@
+@model QueueCare.ViewModels.ServiceFormViewModel
+@{
+    bool isNew = Model.ServiceId == 0;
+    ViewData["Title"] = isNew ? "Add service" : "Edit service";
+}
+
+<section class="qb-section">
+    <div class="qb-main" style="max-width: 600px; margin: 0 auto;">
+        
+        <h1 class="qb-title"><span class="qb-title-ink">@(isNew ? "Add" : "Edit")</span> Service</h1>
+
+        <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@(isNew ? (int?)null : Model.ServiceId)" method="post" class="qb-book-form">
+            <div asp-validation-summary="ModelOnly" class="qb-validation"></div>
+            <input type="hidden" asp-for="ServiceId" />
+
+            <div class="qb-field">
+                <label asp-for="Name" class="qb-label"></label>
+                <input asp-for="Name" class="qb-input" />
+                <span asp-validation-for="Name" class="qb-validation"></span>
+            </div>
+
+            <div class="qb-field">
+                <label asp-for="Code" class="qb-label"></label>
+                <input asp-for="Code" class="qb-input" maxlength="5" />
+                <small class="qb-hint">The letter(s) at the start of ticket numbers (e.g., C for C-014). Must be unique.</small>
+                <span asp-validation-for="Code" class="qb-validation"></span>
+            </div>
+
+            <div class="qb-field">
+                <label asp-for="AvgConsultMinutes" class="qb-label"></label>
+                <input asp-for="AvgConsultMinutes" class="qb-input" type="number" min="1" />
+                <small class="qb-hint">Used to work out the estimated wait on the live queue page.</small>
+                <span asp-validation-for="AvgConsultMinutes" class="qb-validation"></span>
+            </div>
+
+            <div class="qb-field" style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
+                <input asp-for="IsActive" style="width: 20px; height: 20px; accent-color: var(--qc-ink);" />
+                <label asp-for="IsActive" class="qb-label" style="margin-bottom: 0; cursor: pointer;"></label>
+            </div>
+
+            <div class="qb-actions" style="flex-direction: row; margin-top: 30px;">
+                <button type="submit" class="qb-btn qb-btn-confirm">Save</button>
+                <a asp-action="Index" class="qb-btn qb-btn-cancel" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

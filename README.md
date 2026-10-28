@@ -35,19 +35,23 @@ QueueCare lets patients book appointments and track their position in a live que
 - Reports: served per day, average wait, no-show rate
 
 ## Setup
-1. Clone the repository and switch to `dev`:
-   ```
-   git clone https://github.com/Mgavin-Heinz/QueueCare.git
-   cd QueueCare
-   git checkout dev
-   ```
-2. Open the solution in Visual Studio 2022.
-3. Copy `appsettings.json` to `appsettings.Development.json` and set your local SQL Server connection string. **Never commit this file.**
-4. Create the database: `Update-Database` in the Package Manager Console.
-5. Run the app (F5). Seed data creates demo accounts for each role.
+1. In Visual Studio 2022: **Clone a repository** → `https://github.com/Mgavin-Heinz/QueueCare`
+2. Switch to the `dev` branch (Git → Manage Branches), then create your own feature branch from it.
+3. Open `QueueCare/QueueCare.sln`.
+4. Tools → NuGet Package Manager → Package Manager Console, run `Update-Database`.
+5. Press F5. Register a test account to check login works.
+
+The app uses SQL Server LocalDB, which comes with Visual Studio's "ASP.NET and web development" workload. No extra database setup is needed.
 
 ## Demo accounts
-To be added once seed data is in place (test data only, no real patient information).
+Created automatically when the app starts (test data only):
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@queuecare.local | Demo123! |
+| Receptionist | reception@queuecare.local | Demo123! |
+| Nurse | nurse@queuecare.local | Demo123! |
+| Patient | patient@queuecare.local | Demo123! |
 
 ## How we work
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branches, commit messages and pull requests.
